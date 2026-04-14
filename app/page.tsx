@@ -11,7 +11,6 @@ export default function Page() {
 
       <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
 
-        {/* ================= HEADER ================= */}
         <header className="flex items-center justify-between py-6">
 
           {/* LOGO */}
@@ -30,19 +29,16 @@ export default function Page() {
             </p>
           </div>
 
-          {/* DESKTOP MENU */}
           <div className="hidden md:flex items-center gap-8 text-sm text-slate-600 ml-auto mr-6">
             <a href="#">Layanan</a>
             <a href="#">Tentang</a>
             <a href="#">Kontak</a>
           </div>
 
-          {/* LOGIN DESKTOP */}
           <button className="hidden md:block rounded-xl bg-emerald-600 px-5 py-2 text-sm font-semibold text-white shadow-md hover:bg-emerald-700">
             Login
           </button>
 
-          {/* MOBILE BUTTON */}
           <button
             onClick={() => setOpen(true)}
             className="md:hidden text-2xl text-slate-700"
@@ -52,7 +48,6 @@ export default function Page() {
 
         </header>
 
-        {/* ================= SIDEBAR MOBILE ================= */}
         {open && (
           <div className="fixed inset-0 z-[9999] md:hidden flex">
 
@@ -81,10 +76,8 @@ export default function Page() {
           </div>
         )}
 
-        {/* ================= HERO ================= */}
-        <section className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center py-6">
+        <section className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-20 items-center py-1">
 
-          {/* LEFT */}
           <div className="space-y-8 text-center lg:text-left">
 
             <div className="inline-flex mx-auto lg:mx-0 items-center gap-2 rounded-full bg-emerald-100 px-4 py-2 text-sm font-semibold text-emerald-700">
@@ -125,7 +118,7 @@ export default function Page() {
               Mulai Sekarang →
             </button>
 
-            <div className="grid grid-cols-3 gap-6 pt-4 text-center">
+            <div className="grid grid-cols-3 gap-6 pt-1 -mt-3 text-left">
 
               <div>
                 <p className="text-xl sm:text-2xl font-bold text-slate-900">10K+</p>
@@ -146,8 +139,7 @@ export default function Page() {
 
           </div>
 
-          {/* RIGHT CARD */}
-          <div className="flex justify-center lg:justify-end">
+          <div className="flex justify-center lg:justify-end px-4 lg:px-10">
 
             <div className="relative w-full max-w-[420px] mx-auto lg:mx-0 rounded-3xl bg-white p-6 shadow-xl space-y-6">
 
