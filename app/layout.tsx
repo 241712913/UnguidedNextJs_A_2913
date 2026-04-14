@@ -7,8 +7,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={fontPrimary}>
-      <body>{children}</body>
+    <html lang="id" className={fontPrimary}>
+      <body className="overflow-x-hidden">{children}</body>
     </html>
   );
 }
