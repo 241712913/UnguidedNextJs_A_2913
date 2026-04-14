@@ -15,7 +15,7 @@
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "jsx": "react-jsx",
+    "jsx": "preserve",
     "incremental": true,
     "plugins": [
       {
@@ -28,7 +28,7 @@
         "./*"
       ]
     },
-    "verbatimModuleSyntax": true
+    "verbatimModuleSyntax": false
   },
   "include": [
     "next-env.d.ts",
@@ -38,7 +38,8 @@
     "app/lib/placeholder-data.ts",
     "scripts/seed.js",
     ".next/types/**/*.ts",
-    ".next/dev/types/**/*.ts"
+    ".next/dev/types/**/*.ts",
+    "next.config.js"
   ],
   "exclude": [
     "node_modules"

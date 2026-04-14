@@ -1,6 +1,6 @@
 import { generateYAxis } from '@/app/lib/utils';
 import { CalendarIcon } from '@heroicons/react/24/outline';
-import { Revenue } from '@/app/lib/definitions';
+import type { Revenue } from '@/app/lib/definitions';
 
 // This component is representational only.
 // For data visualization UI, check out:

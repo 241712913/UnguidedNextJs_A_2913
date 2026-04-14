@@ -1,6 +1,8 @@
 import Image from 'next/image';
 import Search from '@/app/ui/search';
-import {
+
+// ←←← PERBAIKAN DI SINI ←←←
+import type {
   CustomersTableType,
   FormattedCustomersTable,
 } from '@/app/lib/definitions';
