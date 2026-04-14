@@ -1,14 +1,20 @@
+'use client';
+
+import { useState } from 'react';
 import Image from 'next/image';
 
 export default function Page() {
+  const [open, setOpen] = useState(false);
+
   return (
     <main className="min-h-screen bg-gradient-to-b from-white to-emerald-50 font-[&_*]:font-poppins">
 
       <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
 
-        {/* HEADER */}
+        {/* ================= HEADER (DESKTOP TETAP AMAN) ================= */}
         <header className="flex items-center justify-between py-6">
-          
+
+          {/* LOGO */}
           <div className="flex items-center gap-3">
             <div className="relative h-14 w-14 sm:h-16 sm:w-16">
               <Image
@@ -24,18 +30,60 @@ export default function Page() {
             </p>
           </div>
 
-          <div className="flex items-center gap-8 text-sm text-slate-600 ml-auto mr-6">
+          {/* DESKTOP MENU (TETAP SAMA, TIDAK DIUBAH) */}
+          <div className="hidden md:flex items-center gap-8 text-sm text-slate-600 ml-auto mr-6">
             <a href="#">Layanan</a>
             <a href="#">Tentang</a>
             <a href="#">Kontak</a>
           </div>
 
-          <button className="rounded-xl bg-emerald-600 px-5 py-2 text-sm font-semibold text-white shadow-md hover:bg-emerald-700">
+          {/* LOGIN (DESKTOP TETAP) */}
+          <button className="hidden md:block rounded-xl bg-emerald-600 px-5 py-2 text-sm font-semibold text-white shadow-md hover:bg-emerald-700">
             Login
           </button>
+
+          {/* MOBILE BUTTON ONLY */}
+          <button
+            onClick={() => setOpen(true)}
+            className="md:hidden text-2xl text-slate-700"
+          >
+            ☰
+          </button>
+
         </header>
 
-        {/* HERO */}
+        {/* ================= SIDEBAR MOBILE ONLY ================= */}
+        {open && (
+          <div className="fixed inset-0 z-50 md:hidden flex">
+
+            {/* BACKDROP */}
+            <div
+              className="flex-1 bg-black/40"
+              onClick={() => setOpen(false)}
+            />
+
+            {/* SIDEBAR */}
+            <div className="w-64 bg-white h-full shadow-xl p-6 space-y-6">
+
+              <button
+                onClick={() => setOpen(false)}
+                className="text-right w-full text-slate-500 text-lg"
+              >
+                ✕
+              </button>
+
+              <nav className="flex flex-col gap-5 text-slate-700 font-medium">
+                <a href="#" onClick={() => setOpen(false)}>Layanan</a>
+                <a href="#" onClick={() => setOpen(false)}>Tentang</a>
+                <a href="#" onClick={() => setOpen(false)}>Kontak</a>
+                <a href="#" onClick={() => setOpen(false)}>Login</a>
+              </nav>
+
+            </div>
+          </div>
+        )}
+
+        {/* ================= HERO (TIDAK DIUBAH SAMA SEKALI) ================= */}
         <section className="grid gap-12 lg:grid-cols-2 items-center py-2">
 
           {/* LEFT */}
@@ -93,12 +141,11 @@ export default function Page() {
 
           </div>
 
-          {/* RIGHT - UPDATED */}
+          {/* RIGHT - TETAP ORIGINAL */}
           <div className="flex justify-center lg:justify-end pr-4">
 
             <div className="relative w-[420px] rounded-3xl bg-white p-6 shadow-xl space-y-6">
 
-              {/* NOTIF */}
               <div className="absolute -top-6 left-6 bg-white px-4 py-2 rounded-xl shadow-md text-xs text-slate-700">
                 📦 Paket SBK-042 sedang dikirim
               </div>
@@ -107,13 +154,11 @@ export default function Page() {
                 ✔ Terkirim
               </div>
 
-              {/* HEADER */}
               <div>
                 <p className="text-sm text-slate-500">Pengiriman Hari Ini</p>
                 <h2 className="text-lg font-bold text-slate-900">Pantau Pengiriman</h2>
               </div>
 
-              {/* STATS */}
               <div className="grid grid-cols-3 gap-3 text-center">
                 <div>
                   <p className="text-xl font-bold text-amber-500">12</p>
@@ -129,7 +174,6 @@ export default function Page() {
                 </div>
               </div>
 
-              {/* TRUCK */}
               <div className="relative h-32 w-full">
                 <Image
                   src="/truck.png"
@@ -139,7 +183,6 @@ export default function Page() {
                 />
               </div>
 
-              {/* PROGRESS */}
               <div className="space-y-2">
                 <div className="flex justify-between text-xs text-slate-500">
                   <span>Perjalanan Paket</span>
@@ -150,7 +193,6 @@ export default function Page() {
                 </div>
               </div>
 
-              {/* FOOTER */}
               <div className="rounded-xl bg-emerald-600 p-3 text-white text-sm">
                 <p className="opacity-80 text-xs">10K+ Paket</p>
                 <p className="font-bold">Berhasil terkirim</p>
