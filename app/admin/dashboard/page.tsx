@@ -12,62 +12,60 @@ export default function DashboardPage() {
       <Sidebar open={open} onClose={() => setOpen(false)} />
       <Navbar onMenuClick={() => setOpen(true)} />
 
-      <div className="bg-gradient-to-r from-green-700 to-green-600 text-white p-6 mb-5 ml-3 mr-3 mt-5 rounded-2xl flex justify-between items-center shadow">
+      <div className="bg-gradient-to-r from-green-700 to-green-600 text-white p-4 sm:p-6 m-3 mt-5 rounded-2xl flex flex-col sm:flex-row justify-between gap-4 shadow">
         <div>
-          <h1 className="text-xl font-bold">Dashboard Admin</h1>
-          <p className="text-sm opacity-90">
+          <h1 className="text-lg sm:text-xl font-bold">Dashboard Admin</h1>
+          <p className="text-xs sm:text-sm opacity-90">
             Overview bisnis SahabatKargo.id hari ini
           </p>
         </div>
 
-        <div className="text-right">
-          <p className="text-sm">Total Pendapatan</p>
-          <h2 className="text-2xl font-bold">Rp 85.600</h2>
+        <div className="sm:text-right">
+          <p className="text-xs sm:text-sm">Total Pendapatan</p>
+          <h2 className="text-xl sm:text-2xl font-bold">Rp 85.600</h2>
           <p className="text-xs opacity-80">20% success rate</p>
         </div>
       </div>
 
-      <div className="grid grid-cols-4 gap-5 mb-5 ml-3 mr-3">
-
-        <div className="bg-blue-100 border border-blue-300 p-5 rounded-2xl">
-          <p className="text-2xl font-bold">5</p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 m-3">
+        <div className="bg-blue-100 border border-blue-300 p-4 rounded-2xl">
+          <p className="text-xl font-bold">5</p>
           <p className="text-sm text-gray-600">Total Pengiriman</p>
           <p className="text-xs text-gray-400">Terkirim</p>
         </div>
 
-        <div className="bg-yellow-100 border border-yellow-300 p-5 rounded-2xl">
-          <p className="text-2xl font-bold">4</p>
+        <div className="bg-yellow-100 border border-yellow-300 p-4 rounded-2xl">
+          <p className="text-xl font-bold">4</p>
           <p className="text-sm text-gray-600">Paket Aktif</p>
           <p className="text-xs text-gray-400">Sedang berjalan</p>
         </div>
 
-        <div className="bg-green-100 border border-green-300 p-5 rounded-2xl">
-          <p className="text-2xl font-bold">1</p>
+        <div className="bg-green-100 border border-green-300 p-4 rounded-2xl">
+          <p className="text-xl font-bold">1</p>
           <p className="text-sm text-gray-600">Berhasil Terkirim</p>
           <p className="text-xs text-gray-400">20% success rate</p>
         </div>
 
-        <div className="bg-red-100 border border-red-300 p-5 rounded-2xl">
-          <p className="text-2xl font-bold">0</p>
+        <div className="bg-red-100 border border-red-300 p-4 rounded-2xl">
+          <p className="text-xl font-bold">0</p>
           <p className="text-sm text-gray-600">Pengiriman Gagal</p>
           <p className="text-xs text-gray-400">Perlu tindakan</p>
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-5">
-
-        <div className="col-span-2 bg-white p-5 mb-5 ml-3 mr-3 rounded-2xl shadow">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 m-3">
+        <div className="lg:col-span-2 bg-white p-4 rounded-2xl shadow">
           <h2 className="font-semibold mb-2">Tren Pengiriman</h2>
           <p className="text-xs text-gray-400 mb-4">7 hari terakhir</p>
 
-          <div className="h-48 flex items-end justify-between px-4">
+          <div className="h-40 sm:h-48 flex items-end justify-between px-2 sm:px-4">
             {[0, 0, 0, 0, 0, 1, 5].map((val, i) => (
               <div key={i} className="flex flex-col items-center">
                 <div
-                  className="bg-green-600 w-6 rounded-t-md"
+                  className="bg-green-600 w-4 sm:w-6 rounded-t-md"
                   style={{ height: `${val * 20}px` }}
                 />
-                <span className="text-xs mt-1 text-gray-400">
+                <span className="text-[10px] sm:text-xs mt-1 text-gray-400">
                   {["Thu", "Fri", "Sat", "Sun", "Mon", "Tue", "Wed"][i]}
                 </span>
               </div>
@@ -75,11 +73,10 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="bg-white p-5 mb-5 mr-3 rounded-2xl shadow">
+        <div className="bg-white p-4 rounded-2xl shadow">
           <h2 className="font-semibold mb-3">Layanan</h2>
 
           <div className="space-y-4 text-sm">
-
             <div>
               <div className="flex justify-between">
                 <span>Reguler</span>
@@ -109,21 +106,19 @@ export default function DashboardPage() {
                 <div className="h-2 bg-yellow-400 rounded-full w-[20%]" />
               </div>
             </div>
-
           </div>
         </div>
       </div>
 
-      <div className="bg-white p-5 ml-3 mr-3 mb-5 rounded-2xl shadow">
-
-        <div className="flex justify-between items-center mb-4">
+      <div className="bg-white p-4 m-3 rounded-2xl shadow">
+        <div className="flex flex-col sm:flex-row justify-between gap-3 sm:items-center mb-4">
           <h2 className="font-semibold">Daftar Pengiriman</h2>
 
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2">
             <select className="border rounded-lg px-8 py-1 text-sm">
               <option>Tanggal</option>
             </select>
-            <select className="border rounded-lg px-10 py-1 text-sm">
+            <select className="border rounded-lg px-6 py-1 text-sm">
               <option>Semua Status</option>
               <option>Menunggu Pick Up</option>
               <option>Dijemput</option>
@@ -136,66 +131,65 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="text-left border-b text-gray-500">
-              <th className="py-2">Nomor Resi</th>
-              <th>Pengirim → Penerima</th>
-              <th>Status</th>
-              <th>Tanggal</th>
-            </tr>
-          </thead>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm min-w-[600px]">
+            <thead>
+              <tr className="text-left border-b text-gray-500">
+                <th className="py-2">Nomor Resi</th>
+                <th>Pengirim → Penerima</th>
+                <th>Status</th>
+                <th>Tanggal</th>
+              </tr>
+            </thead>
 
-          <tbody className="text-gray-700">
+            <tbody className="text-gray-700">
+              <tr className="border-b">
+                <td className="py-3 text-green-600">SK-8HJ2K9XMPL</td>
+                <td>Bima Pratama → Sari Wijaya</td>
+                <td>
+                  <span className="bg-yellow-100 text-yellow-600 px-2 py-1 rounded-full text-xs">
+                    Menunggu
+                  </span>
+                </td>
+                <td>10 Apr 26</td>
+              </tr>
 
-            <tr className="border-b">
-              <td className="py-3 text-green-600">SK-8HJ2K9XMPL</td>
-              <td>Bima Pratama → Sari Wijaya</td>
-              <td>
-                <span className="bg-yellow-100 text-yellow-600 px-2 py-1 rounded-full text-xs">
-                  Menunggu
-                </span>
-              </td>
-              <td>10 Apr 26</td>
-            </tr>
+              <tr className="border-b">
+                <td className="py-3 text-green-600">SK-5TRW82NQPZ</td>
+                <td>Dewi Lestari → Rudi Hartono</td>
+                <td>
+                  <span className="bg-green-100 text-green-600 px-2 py-1 rounded-full text-xs">
+                    Terkirim
+                  </span>
+                </td>
+                <td>10 Apr 26</td>
+              </tr>
 
-            <tr className="border-b">
-              <td className="py-3 text-green-600">SK-5TRW82NQPZ</td>
-              <td>Dewi Lestari → Rudi Hartono</td>
-              <td>
-                <span className="bg-green-100 text-green-600 px-2 py-1 rounded-full text-xs">
-                  Terkirim
-                </span>
-              </td>
-              <td>10 Apr 26</td>
-            </tr>
+              <tr className="border-b">
+                <td className="py-3 text-green-600">SK-9PLM67BVCK</td>
+                <td>Andi Saputra → Lisa Permata</td>
+                <td>
+                  <span className="bg-blue-100 text-blue-600 px-2 py-1 rounded-full text-xs">
+                    Dijemput
+                  </span>
+                </td>
+                <td>10 Apr 26</td>
+              </tr>
 
-            <tr className="border-b">
-              <td className="py-3 text-green-600">SK-9PLM67BVCK</td>
-              <td>Andi Saputra → Lisa Permata</td>
-              <td>
-                <span className="bg-blue-100 text-blue-600 px-2 py-1 rounded-full text-xs">
-                  Dijemput
-                </span>
-              </td>
-              <td>10 Apr 26</td>
-            </tr>
-
-            <tr>
-              <td className="py-3 text-green-600">SK-3FGH41RSTY</td>
-              <td>Nina Safitri → Doni Prasetyo</td>
-              <td>
-                <span className="bg-cyan-100 text-cyan-600 px-2 py-1 rounded-full text-xs">
-                  Sedang Diantar
-                </span>
-              </td>
-              <td>10 Apr 26</td>
-            </tr>
-
-          </tbody>
-        </table>
+              <tr>
+                <td className="py-3 text-green-600">SK-3FGH41RSTY</td>
+                <td>Nina Safitri → Doni Prasetyo</td>
+                <td>
+                  <span className="bg-cyan-100 text-cyan-600 px-2 py-1 rounded-full text-xs">
+                    Sedang Diantar
+                  </span>
+                </td>
+                <td>10 Apr 26</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
-
     </div>
   );
 }
