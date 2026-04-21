@@ -14,17 +14,15 @@ export default function Page() {
         <header className="flex items-center justify-between py-6">
 
           {/* LOGO */}
-          <div className="flex items-center gap-3">
-            <div className="relative h-14 w-14 sm:h-16 sm:w-16">
+          <div className="flex items-center mt-0 gap-3">
               <Image
                 src="/logo.png"
                 alt="logo"
-                fill
-                className="object-cover scale-150"
+                width={80}
+                height={28}
+                className="object-cover"
               />
-            </div>
-
-            <p className="text-lg font-bold text-slate-900">
+            <p className="text-lg font-bold text-slate-900 mt-0">
               SahabatKargo<span className="text-emerald-600">.id</span>
             </p>
           </div>
