@@ -56,7 +56,7 @@ export default function ProfilAdminPage() {
       <div className="p-3 md:p-3 space-y-3">
         <div className="bg-gradient-to-r from-emerald-600 to-green-500 text-white rounded-3xl p-6 shadow-md">
           <p className="text-sm opacity-90">Admin Panel</p>
-          <h1 className="text-2xl font-bold mt-1">
+          <h1 className="text-xl font-bold mt-1">
             Pengaturan Akun
           </h1>
           <p className="text-sm opacity-80 mt-1">

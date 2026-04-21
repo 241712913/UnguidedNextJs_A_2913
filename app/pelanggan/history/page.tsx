@@ -45,7 +45,7 @@ export default function RiwayatPage() {
       <div className="p-3 md:p-3 space-y-3 mx-auto">
 
         <div className="bg-gradient-to-r from-emerald-600 to-green-500 text-white rounded-3xl p-6 shadow-md">
-          <h1 className="text-2xl font-bold">Riwayat Pengiriman</h1>
+          <h1 className="text-xl font-bold">Riwayat Pengiriman</h1>
           <p className="text-sm opacity-90 mt-1">
             Semua aktivitas pengiriman kamu
           </p>

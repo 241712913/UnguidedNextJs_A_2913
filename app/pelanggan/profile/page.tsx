@@ -48,7 +48,7 @@ export default function ProfilPage() {
 
         <div className="bg-gradient-to-r from-emerald-600 to-green-500 text-white rounded-3xl p-6 shadow-md">
           <p className="text-sm opacity-90">Profil Pengguna</p>
-          <h1 className="text-2xl font-bold mt-1">
+          <h1 className="text-xl font-bold mt-1">
             {profile.nama}
           </h1>
           <p className="text-sm opacity-80 mt-1">
@@ -78,21 +78,6 @@ export default function ProfilPage() {
             <p className="text-sm text-gray-500">
               {profile.email}
             </p>
-
-            <div className="mt-4 flex gap-6 text-center">
-              <div>
-                <p className="font-bold text-lg">7</p>
-                <p className="text-xs text-gray-400">Total Paket</p>
-              </div>
-              <div>
-                <p className="font-bold text-lg">3</p>
-                <p className="text-xs text-gray-400">Diproses</p>
-              </div>
-              <div>
-                <p className="font-bold text-lg">2</p>
-                <p className="text-xs text-gray-400">Selesai</p>
-              </div>
-            </div>
           </div>
         </div>
 

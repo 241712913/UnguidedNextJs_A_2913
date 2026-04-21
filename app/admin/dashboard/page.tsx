@@ -14,7 +14,7 @@ export default function DashboardPage() {
 
       <div className="bg-gradient-to-r from-green-700 to-green-600 text-white p-6 mb-5 ml-3 mr-3 mt-5 rounded-2xl flex justify-between items-center shadow">
         <div>
-          <h1 className="text-2xl font-bold">Dashboard Admin</h1>
+          <h1 className="text-xl font-bold">Dashboard Admin</h1>
           <p className="text-sm opacity-90">
             Overview bisnis SahabatKargo.id hari ini
           </p>
@@ -22,7 +22,7 @@ export default function DashboardPage() {
 
         <div className="text-right">
           <p className="text-sm">Total Pendapatan</p>
-          <h2 className="text-3xl font-bold">Rp 85.600</h2>
+          <h2 className="text-2xl font-bold">Rp 85.600</h2>
           <p className="text-xs opacity-80">20% success rate</p>
         </div>
       </div>
