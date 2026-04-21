@@ -29,7 +29,7 @@ export default function ShipmentPage() {
           </div>
 
           <button
-            onClick={() => (window.location.href = "/create")}
+            onClick={() => (window.location.href = "/admin/create")}
             className="bg-white text-green-600 hover:bg-green-50 px-6 py-3 rounded-xl font-semibold flex items-center gap-2 transition shadow-sm"
           >
             + Tambah
@@ -51,19 +51,18 @@ export default function ShipmentPage() {
           </div>
 
           <select className="border border-gray-200 rounded-xl px-10 py-3 focus:outline-none focus:ring-2 focus:ring-green-500">
-            <option>Terbaru</option>
-            <option>Terlama</option>
-          </select>
-
-          <select className="border border-gray-200 rounded-xl px-10 py-3 focus:outline-none focus:ring-2 focus:ring-green-500">
-            <option>Semua Lokasi</option>
+            <option>Tanggal</option>
           </select>
 
           <select className="border border-gray-200 rounded-xl px-10 py-3 focus:outline-none focus:ring-2 focus:ring-green-500">
             <option>Semua Status</option>
+            <option>Menunggu Pick Up</option>
             <option>Dijemput</option>
-            <option>Menunggu</option>
+            <option>Dalam perjalanan</option>
+            <option>Tiba di Kota Tujuan</option>
+            <option>Sedang diantar</option>
             <option>Terkirim</option>
+            <option>Gagal</option>
           </select>
         </div>
 

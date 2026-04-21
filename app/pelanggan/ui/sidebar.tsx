@@ -10,7 +10,7 @@ export default function Sidebar({ open, onClose }: any) {
 
   const menus = [
     { name: "Home", href: "/pelanggan/home", icon: Home },
-    { name: "Tracking", href: "/pelanggan/tracking", icon: Search },
+    { name: "Lacak Pengiriman", href: "/pelanggan/tracking", icon: Search },
     { name: "Riwayat", href: "/pelanggan/history", icon: Clock },
     { name: "Profil", href: "/pelanggan/profile", icon: User },
   ];

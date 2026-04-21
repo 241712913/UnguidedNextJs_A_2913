@@ -125,6 +125,13 @@ export default function DashboardPage() {
             </select>
             <select className="border rounded-lg px-10 py-1 text-sm">
               <option>Semua Status</option>
+              <option>Menunggu Pick Up</option>
+              <option>Dijemput</option>
+              <option>Dalam perjalanan</option>
+              <option>Tiba di Kota Tujuan</option>
+              <option>Sedang diantar</option>
+              <option>Terkirim</option>
+              <option>Gagal</option>
             </select>
           </div>
         </div>
