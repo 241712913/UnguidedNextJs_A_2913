@@ -7,6 +7,7 @@ import NotificationPanel from "./notification-panel";
 
 export default function Navbar({ onMenuClick }: { onMenuClick: () => void }) {
   const [openNotif, setOpenNotif] = useState(false);
+  const [role, setRole] = useState<"admin" | "pelanggan">("admin");
 
   return (
     <>

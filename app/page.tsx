@@ -2,9 +2,11 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
+import { useRouter } from "next/navigation";
 
 export default function Page() {
   const [open, setOpen] = useState(false);
+  const router = useRouter();
 
   return (
     <main className="min-h-screen overflow-x-hidden bg-gradient-to-b from-white to-emerald-50 font-[&_*]:font-poppins">
@@ -112,7 +114,10 @@ export default function Page() {
 
             </div>
 
-            <button className="w-full sm:w-auto rounded-xl bg-emerald-600 px-7 py-3 text-sm font-semibold text-white shadow-lg hover:bg-emerald-700">
+            <button 
+              onClick={() => router.push("/admin/dashboard")}
+              className="w-full sm:w-auto rounded-xl bg-emerald-600 px-7 py-3 text-sm font-semibold text-white shadow-lg hover:bg-emerald-700"
+            >
               Mulai Sekarang →
             </button>
 
