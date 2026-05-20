@@ -1,26 +1,34 @@
 import { db } from "@vercel/postgres";
 
-export async function GET() {
-  const result = await db.sql`
-    SELECT *
-    FROM (
-      SELECT DISTINCT ON (s.id)
-        s.id,
-        s.resi,
-        s.sender_name,
-        s.receiver_name,
-        s.origin,
-        s.destination,
-        s.service,
-        l.status,
-        l.created_at
-      FROM shipments s
-      LEFT JOIN shipment_status_logs l
-        ON s.id = l.shipment_id
-      ORDER BY s.id, l.created_at DESC
-    ) sub
-    ORDER BY id DESC;
-  `;
+// Memaksa API menjadi dinamis agar tidak error saat build di Vercel
+export const dynamic = 'force-dynamic';
 
-  return Response.json(result.rows);
+export async function GET() {
+  try {
+    // Mengambil data langsung dari tabel pengiriman diurutkan dari yang terbaru
+    const result = await db.sql`
+      SELECT 
+        id,
+        resi,
+        nama_pengirim,
+        nama_penerima,
+        no_hp_pengirim,
+        no_hp_penerima,
+        alamat_pengirim,
+        alamat_penerima,
+        layanan,
+        berat,
+        ongkir,
+        status,
+        created_at,
+        pelanggan_id
+      FROM pengiriman
+      ORDER BY id DESC;
+    `;
+
+    return Response.json(result.rows);
+  } catch (error) {
+    console.error("Database Error:", error);
+    return Response.json({ error: "Gagal mengambil data pengiriman" }, { status: 500 });
+  }
 }
