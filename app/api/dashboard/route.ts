@@ -7,28 +7,31 @@ export async function GET() {
 
     // TOTAL PENGIRIMAN
     const totalPengiriman = await client.sql`
-      SELECT COUNT(*) FROM pengiriman
+      SELECT COUNT(*) as count FROM pengiriman
     `;
 
-    // BERHASIL
+    // BERHASIL (pakai status_id)
     const berhasil = await client.sql`
-      SELECT COUNT(*) FROM pengiriman
-      WHERE status = 'Terkirim'
+      SELECT COUNT(*) as count
+      FROM pengiriman
+      WHERE status_id = 5
     `;
 
     // GAGAL
     const gagal = await client.sql`
-      SELECT COUNT(*) FROM pengiriman
-      WHERE status = 'Gagal'
+      SELECT COUNT(*) as count
+      FROM pengiriman
+      WHERE status_id = 6
     `;
 
     // AKTIF
     const aktif = await client.sql`
-      SELECT COUNT(*) FROM pengiriman
-      WHERE status != 'Terkirim'
+      SELECT COUNT(*) as count
+      FROM pengiriman
+      WHERE status_id IN (1,2,3,4)
     `;
 
-    // 5 DATA TERBARU
+    // TERBARU
     const terbaru = await client.sql`
       SELECT *
       FROM pengiriman
@@ -36,25 +39,27 @@ export async function GET() {
       LIMIT 5
     `;
 
-    // LAYANAN TERPOPULER
+    // LAYANAN TERPOPULER (JOIN RELASI)
     const layanan = await client.sql`
-      SELECT layanan, COUNT(*) as total
-      FROM pengiriman
-      GROUP BY layanan
+      SELECT l.nama_layanan AS layanan, COUNT(*) AS total
+      FROM pengiriman p
+      JOIN layanan l ON p.layanan_id = l.id
+      GROUP BY l.nama_layanan
       ORDER BY total DESC
     `;
 
     // TREN PENGIRIMAN
     const tren = await client.sql`
       SELECT
-        DATE(created_at) as tanggal,
-        COUNT(*) as total
+        DATE(created_at) AS tanggal,
+        COUNT(*) AS total
       FROM pengiriman
-      GROUP BY tanggal
+      GROUP BY DATE(created_at)
       ORDER BY tanggal ASC
       LIMIT 7
     `;
 
+    // PENDAPATAN
     const pendapatan = await client.sql`
       SELECT COALESCE(SUM(ongkir), 0) AS total
       FROM pengiriman
@@ -82,9 +87,7 @@ export async function GET() {
         message: "Database error",
         error,
       },
-      {
-        status: 500,
-      }
+      { status: 500 }
     );
   }
 }

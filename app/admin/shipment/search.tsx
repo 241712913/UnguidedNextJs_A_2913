@@ -1,30 +1,38 @@
 'use client';
 
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useState, useEffect } from 'react';
 
 export default function Search() {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const { replace } = useRouter();
 
-  function handleSearch(term: string) {
-    const params = new URLSearchParams(searchParams);
+  const [value, setValue] = useState(searchParams.get('query') || '');
 
-    if (term) {
-      params.set('query', term);
-    } else {
-      params.delete('query');
-    }
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      const params = new URLSearchParams(searchParams.toString());
 
-    replace(`${pathname}?${params.toString()}`);
-  }
+      if (value) {
+        params.set('query', value);
+      } else {
+        params.delete('query');
+      }
+
+      replace(`${pathname}?${params.toString()}`);
+    }, 300); // debounce biar tidak terlalu sering update URL
+
+    return () => clearTimeout(timeout);
+  }, [value]);
 
   return (
     <input
       type="text"
       placeholder="Cari shipment..."
-      onChange={(e) => handleSearch(e.target.value)}
-      className="border px-4 py-2 rounded-lg"
+      value={value}
+      onChange={(e) => setValue(e.target.value)}
+      className="border px-4 py-2 rounded-lg w-full"
     />
   );
 }

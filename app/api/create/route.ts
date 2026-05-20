@@ -1,62 +1,59 @@
 import { NextResponse } from "next/server";
-import { db } from "@vercel/postgres";
+import { sql } from "@vercel/postgres";
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
 
-    const client = await db.connect();
-
-    await client.sql`
+    await sql`
       INSERT INTO pengiriman (
         resi,
         nama_pengirim,
         nama_penerima,
-
         no_hp_pengirim,
         no_hp_penerima,
-
         alamat_pengirim,
         alamat_penerima,
-
-        layanan,
         berat,
         ongkir,
-        status,
-        created_at
+        created_at,
+
+        pelanggan_id,
+        layanan_id,
+        kota_asal_id,
+        kota_tujuan_id,
+        status_id
       )
       VALUES (
         ${body.resi},
         ${body.nama_pengirim},
         ${body.nama_penerima},
-
         ${body.hp_pengirim},
         ${body.hp_penerima},
-
         ${body.alamat_pengirim},
         ${body.alamat_penerima},
-
-        ${body.layanan},
         ${body.berat},
         ${body.total_ongkir},
-        ${body.status},
+        NOW(),
 
-        NOW()
+        ${body.pelanggan_id ?? 1},
+        ${body.layanan_id ?? 1},
+        ${body.kota_asal_id ?? 1},
+        ${body.kota_tujuan_id ?? 1},
+        ${body.status_id ?? 1}
       )
     `;
-
-    client.release();
 
     return NextResponse.json({
       success: true,
       message: "Pengiriman berhasil ditambahkan",
     });
-
   } catch (error: any) {
-    console.log(error);
+    console.error(error);
 
     return NextResponse.json(
       {
+        success: false,
         error: "Gagal menambahkan pengiriman",
         details: error.message,
       },

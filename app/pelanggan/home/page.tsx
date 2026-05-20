@@ -78,13 +78,24 @@ export default function HomePage() {
     useState(true);
 
   const router = useRouter();
+  
+  const STATUS_MAP: Record<number, StatusType> = {
+    1: "Menunggu",
+    2: "Transit",
+    3: "Dalam perjalanan",
+    4: "Diantar",
+    5: "Terkirim",
+  };
 
   useEffect(() => {
     fetch("/api/home")
       .then((res) => res.json())
       .then((result) => {
         setShipments(
-          result.shipments || []
+          (result.shipments || []).map((item: any) => ({
+            ...item,
+            status: STATUS_MAP[item.status_id] || "Menunggu",
+          }))
         );
       })
       .catch((err) => {

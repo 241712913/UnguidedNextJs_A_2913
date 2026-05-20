@@ -5,28 +5,20 @@ import { useRouter } from "next/navigation";
 import Navbar from "@/app/ui/navbar";
 import Sidebar from "@/app/admin/ui/sidebar";
 
-import {
-  Lock,
-  CheckCircle,
-} from "lucide-react";
+import { Lock, CheckCircle } from "lucide-react";
 
 export default function ProfilAdminPage() {
   const router = useRouter();
 
   const [open, setOpen] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+  const [shipments, setShipments] = useState<any[]>([]);
 
-  const [showToast, setShowToast] =
-    useState(false);
-
-  const [shipments, setShipments] =
-    useState<any[]>([]);
-
-  const [password, setPassword] =
-    useState({
-      old: "",
-      new: "",
-      confirm: "",
-    });
+  const [password, setPassword] = useState({
+    old: "",
+    new: "",
+    confirm: "",
+  });
 
   useEffect(() => {
     fetch("/api/pengiriman")
@@ -39,48 +31,38 @@ export default function ProfilAdminPage() {
       });
   }, []);
 
-  const totalPengiriman =
-    shipments.length;
+  // =========================
+  // STATUS FIX (PAKAI status_id)
+  // =========================
 
-  const totalSelesai =
-    shipments.filter(
-      (item) =>
-        item.status === "Terkirim"
-    ).length;
+  const totalPengiriman = shipments.length;
 
-  const totalDiproses =
-    shipments.filter(
-      (item) =>
-        item.status !== "Terkirim"
-    ).length;
+  const totalSelesai = shipments.filter(
+    (item) => item.status_id === 5
+  ).length;
+
+  const totalDiproses = shipments.filter(
+    (item) => item.status_id !== 5
+  ).length;
+
+  // =========================
+  // PASSWORD LOGIC (TIDAK DIUBAH)
+  // =========================
 
   const handleSave = () => {
-    if (
-      !password.old ||
-      !password.new ||
-      !password.confirm
-    ) {
-      alert(
-        "Lengkapi semua field password"
-      );
+    if (!password.old || !password.new || !password.confirm) {
+      alert("Lengkapi semua field password");
       return;
     }
 
-    if (
-      password.new !== password.confirm
-    ) {
-      alert(
-        "Konfirmasi password tidak cocok"
-      );
+    if (password.new !== password.confirm) {
+      alert("Konfirmasi password tidak cocok");
       return;
     }
 
     setShowToast(true);
 
-    setTimeout(
-      () => setShowToast(false),
-      2500
-    );
+    setTimeout(() => setShowToast(false), 2500);
 
     setPassword({
       old: "",
@@ -95,27 +77,15 @@ export default function ProfilAdminPage() {
 
   return (
     <div className="bg-gray-100 min-h-screen">
-      <Sidebar
-        open={open}
-        onClose={() => setOpen(false)}
-      />
-
-      <Navbar
-        onMenuClick={() => setOpen(true)}
-      />
+      <Sidebar open={open} onClose={() => setOpen(false)} />
+      <Navbar onMenuClick={() => setOpen(true)} />
 
       <div className="p-3 md:p-3 space-y-3">
 
         {/* HEADER */}
         <div className="bg-gradient-to-r from-emerald-600 to-green-500 text-white rounded-3xl p-6 shadow-md">
-          <p className="text-sm opacity-90">
-            Admin Panel
-          </p>
-
-          <h1 className="text-xl font-bold mt-1">
-            Pengaturan Akun
-          </h1>
-
+          <p className="text-sm opacity-90">Admin Panel</p>
+          <h1 className="text-xl font-bold mt-1">Pengaturan Akun</h1>
           <p className="text-sm opacity-80 mt-1">
             Kelola keamanan akun admin
           </p>
@@ -125,7 +95,6 @@ export default function ProfilAdminPage() {
         {showToast && (
           <div className="fixed top-6 right-6 bg-emerald-500 text-white px-5 py-3 rounded-xl shadow-lg flex items-center gap-2 z-50">
             <CheckCircle size={18} />
-
             <span className="text-sm font-medium">
               Password berhasil diperbarui
             </span>
@@ -145,7 +114,6 @@ export default function ProfilAdminPage() {
               <p className="font-semibold text-lg">
                 Admin SahabatKargo
               </p>
-
               <p className="text-sm text-gray-500">
                 admin@sahabatkargo.id
               </p>
@@ -160,7 +128,6 @@ export default function ProfilAdminPage() {
               <p className="font-bold text-2xl text-emerald-600">
                 {totalPengiriman}
               </p>
-
               <p className="text-xs text-gray-500 mt-1">
                 Total Pengiriman
               </p>
@@ -170,7 +137,6 @@ export default function ProfilAdminPage() {
               <p className="font-bold text-2xl text-yellow-500">
                 {totalDiproses}
               </p>
-
               <p className="text-xs text-gray-500 mt-1">
                 Diproses
               </p>
@@ -180,7 +146,6 @@ export default function ProfilAdminPage() {
               <p className="font-bold text-2xl text-green-600">
                 {totalSelesai}
               </p>
-
               <p className="text-xs text-gray-500 mt-1">
                 Selesai
               </p>
@@ -193,11 +158,7 @@ export default function ProfilAdminPage() {
         <div className="bg-white rounded-3xl p-6 shadow-sm border space-y-4">
 
           <h3 className="font-semibold flex items-center gap-2">
-            <Lock
-              size={16}
-              className="text-emerald-600"
-            />
-
+            <Lock size={16} className="text-emerald-600" />
             Ubah Kata Sandi
           </h3>
 
@@ -206,10 +167,7 @@ export default function ProfilAdminPage() {
             placeholder="Password lama"
             value={password.old}
             onChange={(e) =>
-              setPassword({
-                ...password,
-                old: e.target.value,
-              })
+              setPassword({ ...password, old: e.target.value })
             }
             className="w-full p-3 rounded-xl border border-gray-200 focus:outline-none focus:border-emerald-500"
           />
@@ -219,10 +177,7 @@ export default function ProfilAdminPage() {
             placeholder="Password baru"
             value={password.new}
             onChange={(e) =>
-              setPassword({
-                ...password,
-                new: e.target.value,
-              })
+              setPassword({ ...password, new: e.target.value })
             }
             className="w-full p-3 rounded-xl border border-gray-200 focus:outline-none focus:border-emerald-500"
           />
@@ -232,11 +187,7 @@ export default function ProfilAdminPage() {
             placeholder="Konfirmasi password"
             value={password.confirm}
             onChange={(e) =>
-              setPassword({
-                ...password,
-                confirm:
-                  e.target.value,
-              })
+              setPassword({ ...password, confirm: e.target.value })
             }
             className="w-full p-3 rounded-xl border border-gray-200 focus:outline-none focus:border-emerald-500"
           />

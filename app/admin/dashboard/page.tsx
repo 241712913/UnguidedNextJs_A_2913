@@ -8,6 +8,15 @@ export default function DashboardPage() {
   const [open, setOpen] = useState(false);
   const [data, setData] = useState<any>(null);
 
+  const statusMap: any = {
+    1: "Menunggu",
+    2: "Dijemput",
+    3: "Dalam perjalanan",
+    4: "Diantar",
+    5: "Terkirim",
+    6: "Gagal",
+  };
+
   useEffect(() => {
     fetch("/api/dashboard")
       .then((res) => res.json())
@@ -347,9 +356,7 @@ export default function DashboardPage() {
                   </td>
 
                   <td>
-                    <span className="bg-green-100 text-green-600 px-2 py-1 rounded-full text-xs">
-                      {item.status}
-                    </span>
+                    {statusMap[item.status_id] || "-"}
                   </td>
 
                   <td>

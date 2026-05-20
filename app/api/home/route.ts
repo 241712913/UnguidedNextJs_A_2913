@@ -3,28 +3,25 @@ import { sql } from "@vercel/postgres";
 
 export async function GET() {
   try {
+    const pelangganId = 1; // Yemima Saragih
 
-    // sementara hardcode pelanggan_id = 1
     const result = await sql`
       SELECT *
       FROM pengiriman
-      WHERE pelanggan_id = 1
+      WHERE pelanggan_id = ${pelangganId}
       ORDER BY created_at DESC
     `;
 
     return NextResponse.json({
       shipments: result.rows,
     });
-
-  } catch (error) {
-
+  } catch (error: any) {
     return NextResponse.json(
       {
         error: "Gagal mengambil data",
+        details: error.message,
       },
-      {
-        status: 500,
-      }
+      { status: 500 }
     );
   }
 }
