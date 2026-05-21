@@ -19,317 +19,187 @@ import {
   Star,
 } from "lucide-react";
 
+const STATUS_MAP: Record<number, string> = {
+  1: "Menunggu",
+  2: "Transit",
+  3: "Dalam perjalanan",
+  4: "Diantar",
+  5: "Terkirim",
+};
+
 export default function DetailPage() {
-
   const router = useRouter();
-
   const params = useParams();
 
-  const [open, setOpen] =
-    useState(false);
-
-  const [rating, setRating] =
-    useState(0);
-
-  const [ulasan, setUlasan] =
-    useState("");
-
-  const [shipment, setShipment] =
-    useState<any>(null);
-
-  const [loading, setLoading] =
-    useState(true);
+  const [open, setOpen] = useState(false);
+  const [rating, setRating] = useState(0);
+  const [ulasan, setUlasan] = useState("");
+  const [shipment, setShipment] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-
     if (!params.id) return;
 
-    fetch(
-      `/api/pengiriman/${params.id}`
-    )
-
+    fetch(`/api/pengiriman/${params.id}`)
       .then((res) => res.json())
-
       .then((result) => {
+        const data = result.shipment;
 
-        setShipment(
-          result.shipment
-        );
+        setShipment({
+          ...data,
+          status:
+            data?.status ??
+            STATUS_MAP[data?.status_id] ??
+            "Menunggu",
+        });
       })
-
       .catch((err) => {
         console.log(err);
       })
-
       .finally(() => {
         setLoading(false);
       });
-
   }, [params.id]);
 
   if (loading) {
     return (
       <div className="bg-gray-100 min-h-screen p-3 space-y-3">
-
-        {/* HEADER SKELETON */}
         <div className="bg-white rounded-3xl p-6 animate-pulse">
-
           <div className="h-4 w-28 bg-gray-200 rounded mb-3"></div>
-
           <div className="h-7 w-52 bg-gray-200 rounded mb-2"></div>
-
           <div className="h-4 w-40 bg-gray-100 rounded"></div>
-
         </div>
 
-        {/* CARD SKELETON */}
         <div className="bg-white p-5 rounded-2xl border animate-pulse">
-
           <div className="grid grid-cols-3 gap-4">
-
             <div className="text-center">
               <div className="w-10 h-10 bg-gray-200 rounded-full mx-auto mb-2"></div>
               <div className="h-3 w-12 bg-gray-200 rounded mx-auto mb-2"></div>
               <div className="h-4 w-20 bg-gray-100 rounded mx-auto"></div>
             </div>
-
-            <div className="text-center">
-              <div className="w-10 h-10 bg-gray-200 rounded-full mx-auto mb-2"></div>
-              <div className="h-3 w-12 bg-gray-200 rounded mx-auto mb-2"></div>
-              <div className="h-4 w-16 bg-gray-100 rounded mx-auto"></div>
-            </div>
-
-            <div className="text-center">
-              <div className="w-10 h-10 bg-gray-200 rounded-full mx-auto mb-2"></div>
-              <div className="h-3 w-12 bg-gray-200 rounded mx-auto mb-2"></div>
-              <div className="h-4 w-20 bg-gray-100 rounded mx-auto"></div>
-            </div>
-
           </div>
-
         </div>
 
-        {/* TIMELINE SKELETON */}
-        <div className="bg-white p-6 rounded-3xl border animate-pulse space-y-5">
-
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="flex gap-4">
-
-              <div className="w-6 h-6 rounded-full bg-gray-200"></div>
-
-              <div className="flex-1">
-
-                <div className="h-4 w-40 bg-gray-200 rounded mb-2"></div>
-
-                <div className="h-3 w-52 bg-gray-100 rounded mb-2"></div>
-
-                <div className="h-3 w-24 bg-gray-100 rounded"></div>
-
-              </div>
-
-            </div>
-          ))}
-
-        </div>
-
+        <div className="bg-white p-6 rounded-3xl border animate-pulse space-y-5"></div>
       </div>
     );
   }
 
   if (!shipment) {
-    return (
-      <div className="p-6">
-        Data tidak ditemukan
-      </div>
-    );
+    return <div className="p-6">Data tidak ditemukan</div>;
   }
 
   return (
     <div className="bg-gray-100 min-h-screen">
-
-      <Sidebar
-        open={open}
-        onClose={() => setOpen(false)}
-      />
+      <Sidebar open={open} onClose={() => setOpen(false)} />
 
       <div className="p-3 md:p-3 space-y-3">
-
+        {/* BACK */}
         <button
-          onClick={() =>
-            router.back()
-          }
+          onClick={() => router.back()}
           className="flex items-center gap-2 text-gray-600"
         >
-
           <ArrowLeft size={18} />
-
           Kembali
-
         </button>
 
+        {/* HEADER */}
         <div className="bg-gradient-to-r from-emerald-600 to-green-500 text-white rounded-3xl p-6 shadow-md">
-
-          <p className="text-sm opacity-90">
-            Nomor resi
-          </p>
+          <p className="text-sm opacity-90">Nomor resi</p>
 
           <h1 className="text-xl font-bold mt-1">
             {shipment.resi}
           </h1>
 
           <span className="inline-block mt-3 bg-white/20 px-3 py-1 rounded-full text-xs">
-
             {shipment.status}
-
           </span>
 
           <p className="text-xs opacity-80 mt-2">
-
-            Tanggal:
-            {" "}
+            Tanggal:{" "}
             {new Date(
               shipment.created_at
-            ).toLocaleDateString(
-              "id-ID"
-            )}
-
+            ).toLocaleDateString("id-ID")}
           </p>
-
         </div>
 
+        {/* INFO */}
         <div className="bg-white p-5 rounded-2xl border">
-
           <div className="grid grid-cols-3 text-center text-sm">
-
             <div>
-
               <MapPin
                 className="mx-auto text-emerald-500 mb-1"
                 size={18}
               />
-
-              <p className="text-gray-400 text-xs">
-                Asal
-              </p>
-
+              <p className="text-gray-400 text-xs">Asal</p>
               <p className="font-semibold">
-                {
-                  shipment.alamat_pengirim
-                }
+                {shipment.alamat_pengirim}
               </p>
-
             </div>
 
             <div>
-
               <Package
                 className="mx-auto text-gray-400 mb-1"
                 size={18}
               />
-
-              <p className="text-gray-400 text-xs">
-                Berat
-              </p>
-
+              <p className="text-gray-400 text-xs">Berat</p>
               <p className="font-semibold">
                 {shipment.berat} kg
               </p>
-
             </div>
 
             <div>
-
               <MapPin
                 className="mx-auto text-yellow-500 mb-1"
                 size={18}
               />
-
-              <p className="text-gray-400 text-xs">
-                Tujuan
-              </p>
-
+              <p className="text-gray-400 text-xs">Tujuan</p>
               <p className="font-semibold">
-                {
-                  shipment.alamat_penerima
-                }
+                {shipment.alamat_penerima}
               </p>
-
             </div>
-
           </div>
-
         </div>
 
+        {/* PENGIRIM */}
         <div className="grid md:grid-cols-2 gap-4">
-
           <div className="bg-white p-4 rounded-2xl border">
-
-            <p className="text-xs text-gray-400">
-              Pengirim
-            </p>
-
+            <p className="text-xs text-gray-400">Pengirim</p>
             <p className="font-semibold">
-              {
-                shipment.nama_pengirim
-              }
+              {shipment.nama_pengirim}
             </p>
-
           </div>
 
           <div className="bg-white p-4 rounded-2xl border">
-
-            <p className="text-xs text-gray-400">
-              Penerima
-            </p>
-
+            <p className="text-xs text-gray-400">Penerima</p>
             <p className="font-semibold">
-              {
-                shipment.nama_penerima
-              }
+              {shipment.nama_penerima}
             </p>
-
           </div>
-
         </div>
 
+        {/* ONGKIR */}
         <div className="bg-white p-6 rounded-3xl border">
-
           <div className="flex justify-between text-sm">
-
-            <span className="text-gray-500">
-              Ongkos Kirim
-            </span>
-
+            <span className="text-gray-500">Ongkos Kirim</span>
             <span className="font-semibold text-emerald-600">
-
-              Rp
-              {Number(
-                shipment.ongkir
-              ).toLocaleString("id-ID")}
-
+              Rp{Number(shipment.ongkir).toLocaleString("id-ID")}
             </span>
-
           </div>
-
         </div>
 
+        {/* ULASAN */}
         <div className="bg-white p-6 rounded-3xl border shadow-sm">
-
           <h2 className="font-semibold text-lg mb-2">
             Beri Ulasan
           </h2>
 
           <div className="flex gap-2 mb-4">
-
             {[1, 2, 3, 4, 5].map((item) => (
-
               <button
                 key={item}
-                onClick={() =>
-                  setRating(item)
-                }
+                onClick={() => setRating(item)}
               >
-
                 <Star
                   size={28}
                   className={
@@ -338,34 +208,22 @@ export default function DetailPage() {
                       : "text-gray-300"
                   }
                 />
-
               </button>
-
             ))}
-
           </div>
 
           <textarea
             value={ulasan}
-            onChange={(e) =>
-              setUlasan(
-                e.target.value
-              )
-            }
+            onChange={(e) => setUlasan(e.target.value)}
             placeholder="Tulis pengalaman kamu..."
             className="w-full border border-gray-200 rounded-2xl p-4 text-sm"
           />
 
           <button className="mt-5 w-full bg-emerald-600 text-white py-3 rounded-2xl font-medium">
-
             Kirim Ulasan
-
           </button>
-
         </div>
-
       </div>
-
     </div>
   );
 }

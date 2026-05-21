@@ -3,17 +3,26 @@ import { sql } from "@vercel/postgres";
 
 export async function GET() {
   try {
-    const pelangganId = 1; // Yemima Saragih
+    const pelangganId = 1;
 
     const result = await sql`
-      SELECT *
+      SELECT 
+        id,
+        resi,
+        nama_pengirim,
+        nama_penerima,
+        alamat_pengirim,
+        alamat_penerima,
+        created_at,
+        pelanggan_id,
+        status_id
       FROM pengiriman
       WHERE pelanggan_id = ${pelangganId}
       ORDER BY created_at DESC
     `;
 
     return NextResponse.json({
-      shipments: result.rows,
+      shipments: result.rows ?? [],
     });
   } catch (error: any) {
     return NextResponse.json(
