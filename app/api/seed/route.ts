@@ -1,53 +1,57 @@
 import { db } from "@vercel/postgres";
 
-// Memaksa API menjadi dinamis agar aman saat proses build di Vercel
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
     const resi = "SK-" + Date.now();
 
-    // Memasukkan data baru sesuai struktur kolom database kamu
-    const shipment = await db.sql`
-      INSERT INTO pengiriman 
-      (
-        resi, 
-        nama_pengirim, 
-        nama_penerima, 
-        no_hp_pengirim, 
-        no_hp_penerima, 
-        alamat_pengirim, 
-        alamat_penerima, 
-        layanan, 
-        berat, 
-        ongkir, 
-        status
+    const result = await db.sql`
+      INSERT INTO pengiriman (
+        resi,
+        nama_pengirim,
+        nama_penerima,
+        no_hp_pengirim,
+        no_hp_penerima,
+        alamat_pengirim,
+        alamat_penerima,
+        layanan_id,
+        berat,
+        ongkir,
+        status_id,
+        pelanggan_id,
+        created_at
       )
-      VALUES 
-      (
-        ${resi}, 
-        'Seed User', 
-        'Receiver', 
-        '08123456789', 
-        '08987654321', 
-        'Jakarta', 
-        'Bandung', 
-        'Reguler', 
-        1.00, 
-        15000.00, 
-        'Menunggu'
+      VALUES (
+        ${resi},
+        'Seed User',
+        'Receiver',
+        '08123456789',
+        '08987654321',
+        'Jakarta',
+        'Bandung',
+        1,
+        1.0,
+        15000,
+        1,
+        1,
+        NOW()
       )
       RETURNING id;
     `;
-    
-    if (!shipment.rows.length) {
-      return Response.json({ error: "Gagal membuat data pengiriman baru" });
-    }
 
-    return Response.json({ message: "Seed berhasil", resi });
+    return Response.json({
+      message: "Seed berhasil",
+      id: result.rows[0].id,
+    });
   } catch (err) {
-    // Mengatasi error tipe data pada block catch (Aman untuk TS & JS)
-    const errorMessage = err instanceof Error ? err.message : "Terjadi kesalahan yang tidak diketahui";
-    return Response.json({ error: errorMessage });
+    return Response.json(
+      {
+        error: "Seed gagal",
+        details:
+          err instanceof Error ? err.message : "unknown",
+      },
+      { status: 500 }
+    );
   }
 }
