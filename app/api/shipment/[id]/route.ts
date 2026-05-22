@@ -26,21 +26,6 @@ export async function GET(
 
     client.release();
 
-    if (
-      result.rows.length === 0
-    ) {
-
-      return Response.json(
-        {
-          message:
-            "Data tidak ditemukan",
-        },
-        {
-          status: 404,
-        }
-      );
-    }
-
     return Response.json(
       result.rows[0]
     );

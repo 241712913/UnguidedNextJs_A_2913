@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 type Shipment = {
   id: number;
   resi: string;
@@ -139,9 +141,12 @@ export default function ShipmentTable({
                 </td>
 
                 <td className="px-6 py-4 text-center">
-                  <button className="text-green-600 hover:underline text-sm">
+                  <Link
+                    href={`/admin/shipment/${item.id}`}
+                    className="text-green-600 hover:underline text-sm"
+                  >
                     Detail
-                  </button>
+                  </Link>
                 </td>
 
               </tr>

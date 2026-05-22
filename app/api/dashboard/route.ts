@@ -1,93 +1,168 @@
 import { db } from "@vercel/postgres";
-import { NextResponse } from "next/server";
+import {
+  NextRequest,
+  NextResponse,
+} from "next/server";
 
-export async function GET() {
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+export async function GET(req: NextRequest) {
   try {
     const client = await db.connect();
 
-    // TOTAL PENGIRIMAN
-    const totalPengiriman = await client.sql`
-      SELECT COUNT(*) as count FROM pengiriman
-    `;
+    const searchParams =
+      req.nextUrl.searchParams;
 
-    // BERHASIL (pakai status_id)
+    const status =
+      searchParams.get("status") || "all";
+
+    const tanggal =
+      searchParams.get("tanggal") || "all";
+
+    const totalPengiriman =
+      await client.sql`
+        SELECT COUNT(*) as count
+        FROM pengiriman
+      `;
+
     const berhasil = await client.sql`
       SELECT COUNT(*) as count
       FROM pengiriman
       WHERE status_id = 5
     `;
 
-    // GAGAL
     const gagal = await client.sql`
       SELECT COUNT(*) as count
       FROM pengiriman
       WHERE status_id = 6
     `;
 
-    // AKTIF
     const aktif = await client.sql`
       SELECT COUNT(*) as count
       FROM pengiriman
       WHERE status_id IN (1,2,3,4)
     `;
 
-    // TERBARU
-    const terbaru = await client.sql`
-      SELECT *
-      FROM pengiriman
-      ORDER BY created_at DESC
-      LIMIT 5
-    `;
+    let terbaru;
 
-    // LAYANAN TERPOPULER (JOIN RELASI)
+    if (
+      status !== "all" &&
+      tanggal !== "all"
+    ) {
+      terbaru = await client.sql`
+        SELECT *
+        FROM pengiriman
+        WHERE status_id = ${Number(status)}
+        AND DATE(created_at) = ${tanggal}
+        ORDER BY created_at DESC
+        LIMIT 5
+      `;
+    }
+
+    else if (status !== "all") {
+      terbaru = await client.sql`
+        SELECT *
+        FROM pengiriman
+        WHERE status_id = ${Number(status)}
+        ORDER BY created_at DESC
+        LIMIT 5
+      `;
+    }
+
+    else if (tanggal !== "all") {
+      terbaru = await client.sql`
+        SELECT *
+        FROM pengiriman
+        WHERE DATE(created_at) = ${tanggal}
+        ORDER BY created_at DESC
+        LIMIT 5
+      `;
+    }
+
+    else {
+      terbaru = await client.sql`
+        SELECT *
+        FROM pengiriman
+        ORDER BY created_at DESC
+        LIMIT 5
+      `;
+    }
+
     const layanan = await client.sql`
-      SELECT l.nama_layanan AS layanan, COUNT(*) AS total
+      SELECT
+        l.nama_layanan AS layanan,
+        COUNT(*) AS total
       FROM pengiriman p
-      JOIN layanan l ON p.layanan_id = l.id
+      JOIN layanan l
+      ON p.layanan_id = l.id
       GROUP BY l.nama_layanan
       ORDER BY total DESC
     `;
 
-    // TREN PENGIRIMAN
     const tren = await client.sql`
       SELECT
-        DATE(created_at) AS tanggal,
+        CASE
+          WHEN EXTRACT(ISODOW FROM created_at) = 1 THEN 'Sen'
+          WHEN EXTRACT(ISODOW FROM created_at) = 2 THEN 'Sel'
+          WHEN EXTRACT(ISODOW FROM created_at) = 3 THEN 'Rab'
+          WHEN EXTRACT(ISODOW FROM created_at) = 4 THEN 'Kam'
+          WHEN EXTRACT(ISODOW FROM created_at) = 5 THEN 'Jum'
+          WHEN EXTRACT(ISODOW FROM created_at) = 6 THEN 'Sab'
+          WHEN EXTRACT(ISODOW FROM created_at) = 7 THEN 'Min'
+        END AS hari,
+
+        EXTRACT(ISODOW FROM created_at) AS urutan,
+
         COUNT(*) AS total
+
       FROM pengiriman
-      GROUP BY DATE(created_at)
-      ORDER BY tanggal ASC
-      LIMIT 7
+
+      WHERE created_at >=
+      CURRENT_DATE - INTERVAL '6 day'
+
+      GROUP BY hari, urutan
+
+      ORDER BY urutan ASC
     `;
 
-    // PENDAPATAN
     const pendapatan = await client.sql`
-      SELECT COALESCE(SUM(ongkir), 0) AS total
+      SELECT
+      COALESCE(SUM(ongkir), 0) AS total
       FROM pengiriman
     `;
 
     client.release();
 
     return NextResponse.json({
-      totalPengiriman: totalPengiriman.rows,
+      totalPengiriman:
+        totalPengiriman.rows,
+
       aktif: aktif.rows,
+
       berhasil: berhasil.rows,
+
       gagal: gagal.rows,
+
       tren: tren.rows,
+
       layanan: layanan.rows,
+
       terbaru: terbaru.rows,
+
       pendapatan: pendapatan.rows,
     });
 
   } catch (error) {
-    console.log(error);
-
     return NextResponse.json(
       {
         success: false,
         message: "Database error",
         error,
       },
-      { status: 500 }
+      {
+        status: 500,
+      }
     );
   }
 }
