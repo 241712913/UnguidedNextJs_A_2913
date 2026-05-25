@@ -1,3 +1,6 @@
+// Simpan file ini di: app/admin/shipment/page.tsx
+// Ganti/replace seluruh isi page.tsx yang lama dengan ini
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -20,11 +23,11 @@ export default function ShipmentPage() {
 
   const itemsPerPage = 5;
 
+  // ─── Fetch data awal ──────────────────────────────────
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-
         const res = await fetch("/api/pengiriman");
         const result = await res.json();
 
@@ -46,6 +49,21 @@ export default function ShipmentPage() {
     fetchData();
   }, []);
 
+  // ─── Handler Delete ────────────────────────────────────
+  // Dipanggil oleh ShipmentTable setelah DELETE berhasil di API
+  const handleDelete = (id: number) => {
+    setShipments((prev) => prev.filter((s) => s.id !== id));
+  };
+
+  // ─── Handler Update ────────────────────────────────────
+  // Dipanggil oleh EditModal setelah PUT berhasil di API
+  const handleUpdate = (updated: any) => {
+    setShipments((prev) =>
+      prev.map((s) => (s.id === updated.id ? { ...s, ...updated } : s))
+    );
+  };
+
+  // ─── Filter ────────────────────────────────────────────
   const filteredShipments = shipments.filter((item) => {
     const matchSearch =
       item.resi?.toLowerCase().includes(search.toLowerCase()) ||
@@ -70,9 +88,7 @@ export default function ShipmentPage() {
     currentPage * itemsPerPage
   );
 
-  // =========================
-  // 🔥 LOADING FULL DASHBOARD STYLE
-  // =========================
+  // ─── Loading skeleton ──────────────────────────────────
   if (loading) {
     return (
       <div className="bg-[#F3F5F4] min-h-screen">
@@ -80,66 +96,45 @@ export default function ShipmentPage() {
         <Navbar onMenuClick={() => setOpen(true)} />
 
         <div className="p-3 space-y-4 animate-pulse">
-
-          {/* HEADER */}
           <div className="bg-gradient-to-r from-green-700 to-green-600 text-white rounded-[30px] p-6 shadow-[0_15px_40px_rgba(0,0,0,0.12)]">
             <div className="h-7 w-64 bg-white/25 rounded mb-3"></div>
             <div className="h-4 w-44 bg-white/15 rounded"></div>
           </div>
-
-          {/* FILTER */}
           <div className="bg-white rounded-[28px] p-4 shadow-[0_10px_30px_rgba(0,0,0,0.04)] flex flex-col lg:flex-row gap-4">
             <div className="h-12 flex-1 bg-gray-100 rounded-2xl"></div>
             <div className="h-12 w-40 bg-gray-100 rounded-2xl"></div>
             <div className="h-12 w-52 bg-gray-100 rounded-2xl"></div>
           </div>
-
-          {/* TABLE CARD */}
           <div className="bg-white rounded-[28px] shadow-[0_10px_30px_rgba(0,0,0,0.04)] overflow-hidden">
-
             <div className="p-5 border-b border-gray-100">
               <div className="h-5 w-52 bg-gray-200 rounded"></div>
             </div>
-
             <div className="divide-y divide-gray-100">
-
               {[1, 2, 3, 4, 5].map((i) => (
                 <div key={i} className="p-5 flex items-center gap-4">
-
                   <div className="h-4 w-28 bg-gray-200 rounded"></div>
-
                   <div className="flex-1 space-y-2">
                     <div className="h-4 w-48 bg-gray-200 rounded"></div>
                     <div className="h-3 w-32 bg-gray-100 rounded"></div>
                   </div>
-
                   <div className="h-6 w-20 bg-gray-200 rounded-full"></div>
-
                   <div className="h-4 w-24 bg-gray-200 rounded"></div>
-
                   <div className="h-8 w-16 bg-gray-200 rounded-xl"></div>
-
                 </div>
               ))}
-
             </div>
           </div>
-
-          {/* PAGINATION */}
           <div className="flex justify-center gap-3 pt-4">
             <div className="h-10 w-20 bg-gray-200 rounded-xl"></div>
             <div className="h-10 w-24 bg-gray-200 rounded-xl"></div>
             <div className="h-10 w-20 bg-gray-200 rounded-xl"></div>
           </div>
-
         </div>
       </div>
     );
   }
 
-  // =========================
-  // UI NORMAL
-  // =========================
+  // ─── UI Normal ─────────────────────────────────────────
   return (
     <div className="bg-gray-100 min-h-screen">
 
@@ -151,14 +146,11 @@ export default function ShipmentPage() {
         {/* HEADER */}
         <div className="bg-gradient-to-r from-green-700 to-green-600 text-white rounded-3xl p-6 flex items-center justify-between shadow-lg">
           <div>
-            <h1 className="text-2xl font-bold">
-              Daftar Pengiriman
-            </h1>
+            <h1 className="text-2xl font-bold">Daftar Pengiriman</h1>
             <p className="text-green-100 mt-2 text-sm">
               {filteredShipments.length} data ditemukan
             </p>
           </div>
-
           <button
             onClick={() => (window.location.href = "/admin/create")}
             className="bg-white text-green-700 hover:bg-green-50 px-6 py-3 rounded-2xl font-semibold"
@@ -170,28 +162,39 @@ export default function ShipmentPage() {
         {/* FILTER */}
         <div className="bg-white rounded-3xl p-4 shadow flex flex-col lg:flex-row gap-4">
           <div className="flex-1 relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-
+            <Search
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+              size={18}
+            />
             <input
               type="text"
               placeholder="Cari resi, pengirim, penerima..."
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full border border-gray-200 rounded-2xl px-5 py-3 pl-11"
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="w-full border border-gray-200 rounded-2xl px-5 py-3 pl-11 focus:outline-none focus:ring-2 focus:ring-green-400"
             />
           </div>
 
           <input
             type="date"
             value={tanggal}
-            onChange={(e) => setTanggal(e.target.value)}
-            className="border border-gray-200 rounded-2xl px-5 py-3"
+            onChange={(e) => {
+              setTanggal(e.target.value);
+              setCurrentPage(1);
+            }}
+            className="border border-gray-200 rounded-2xl px-5 py-3 focus:outline-none focus:ring-2 focus:ring-green-400"
           />
 
           <select
             value={status}
-            onChange={(e) => setStatus(e.target.value)}
-            className="border border-gray-200 rounded-2xl px-5 py-3"
+            onChange={(e) => {
+              setStatus(e.target.value);
+              setCurrentPage(1);
+            }}
+            className="border border-gray-200 rounded-2xl px-5 py-3 focus:outline-none focus:ring-2 focus:ring-green-400"
           >
             <option value="all">Semua Status</option>
             <option value="1">Menunggu</option>
@@ -203,8 +206,13 @@ export default function ShipmentPage() {
           </select>
         </div>
 
-        {/* TABLE */}
-        <ShipmentTable shipments={currentShipments} loading={false} />
+        {/* TABLE — kirim handler delete & update */}
+        <ShipmentTable
+          shipments={currentShipments}
+          loading={false}
+          onDeleteAction={handleDelete}
+          onUpdateAction={handleUpdate}
+        />
 
         {/* PAGINATION */}
         <div className="flex justify-center gap-3 py-5">
@@ -221,7 +229,7 @@ export default function ShipmentPage() {
           </div>
 
           <button
-            disabled={currentPage === totalPages}
+            disabled={currentPage === totalPages || totalPages === 0}
             onClick={() => setCurrentPage((p) => p + 1)}
             className="bg-white px-5 py-2 rounded-xl border disabled:opacity-50"
           >
