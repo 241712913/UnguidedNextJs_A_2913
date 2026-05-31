@@ -43,7 +43,7 @@ export default function DetailPage() {
     fetch(`/api/pengiriman/${params.id}`)
       .then((res) => res.json())
       .then((result) => {
-        const data = result.shipment;
+        const data = result;
 
         setShipment({
           ...data,

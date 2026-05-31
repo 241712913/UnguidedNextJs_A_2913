@@ -37,7 +37,7 @@ export default function DetailPage() {
   useEffect(() => {
 
     fetch(
-      `/api/shipment/${params.id}`
+      `/api/pengiriman/${params.id}`
     )
       .then((res) => res.json())
       .then((result) => {
@@ -278,6 +278,17 @@ if (!data) {
               className="bg-gray-100 hover:bg-gray-200 px-5 py-3 rounded-2xl"
             >
               Kembali
+            </button>
+
+            <button
+              onClick={() =>
+                router.push(
+                  `/admin/shipment/${params.id}/edit`
+                )
+              }
+              className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-2xl"
+            >
+              Edit
             </button>
 
           </div>

@@ -115,7 +115,7 @@ export default function Page() {
             </div>
 
             <button 
-              onClick={() => router.push("/admin/dashboard")}
+              onClick={() => router.push("/login")}
               className="w-full sm:w-auto rounded-xl bg-emerald-600 px-7 py-3 text-sm font-semibold text-white shadow-lg hover:bg-emerald-700"
             >
               Mulai Sekarang →
