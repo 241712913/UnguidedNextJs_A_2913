@@ -35,7 +35,10 @@ export default function Page() {
             <a href="#">Kontak</a>
           </div>
 
-          <button className="hidden md:block rounded-xl bg-emerald-600 px-5 py-2 text-sm font-semibold text-white shadow-md hover:bg-emerald-700">
+          <button 
+            onClick={() => router.push("/login")}
+            className="hidden md:block rounded-xl bg-emerald-600 px-5 py-2 text-sm font-semibold text-white shadow-md hover:bg-emerald-700"
+          >
             Login
           </button>
 

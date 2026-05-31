@@ -6,9 +6,16 @@ export async function GET() {
     const client = await db.connect();
 
     const result = await client.sql`
-      SELECT *
-      FROM pengiriman
-      ORDER BY created_at DESC
+      SELECT
+        p.*,
+        ka.nama_kota AS kota_pengirim,
+        kt.nama_kota AS kota_penerima,
+        l.nama_layanan AS layanan
+      FROM pengiriman p
+      LEFT JOIN kota ka ON p.kota_asal_id = ka.id
+      LEFT JOIN kota kt ON p.kota_tujuan_id = kt.id
+      LEFT JOIN layanan l ON p.layanan_id = l.id
+      ORDER BY p.created_at DESC
     `;
 
     client.release();
@@ -40,13 +47,13 @@ export async function POST(req: Request) {
         alamat_pengirim,
         kota_pengirim,
         kode_pos_pengirim,
-
+        
         nama_penerima,
         hp_penerima,
         alamat_penerima,
         kota_penerima,
         kode_pos_penerima,
-
+        
         berat,
         deskripsi_barang,
         layanan,
