@@ -1,22 +1,35 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
+  const [isChecking, setIsChecking] = useState(true);
 
   useEffect(() => {
-    try {
-      const raw = sessionStorage.getItem("user");
-      const u = raw ? JSON.parse(raw) : null;
-      if (!u || u.role !== "admin") {
-        router.replace("/not-found");
+    const checkAuth = () => {
+      try {
+        const raw = sessionStorage.getItem("user");
+        const u = raw ? JSON.parse(raw) : null;
+        if (!u || u.role !== "admin") {
+          router.replace("/login");
+          return;
+        }
+        setIsChecking(false);
+      } catch {
+        router.replace("/login");
       }
-    } catch {
-      router.replace("/not-found");
-    }
+    };
+
+    // Delay check slightly to ensure sessionStorage is set by client
+    const timer = setTimeout(checkAuth, 100);
+    return () => clearTimeout(timer);
   }, [router]);
+
+  if (isChecking) {
+    return null; // or a loading component
+  }
 
   return <>{children}</>;
 }

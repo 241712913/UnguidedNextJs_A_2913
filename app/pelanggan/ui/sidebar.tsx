@@ -70,18 +70,6 @@ export default function Sidebar({ open, onClose }: any) {
         {/* BOTTOM ACTION */}
         <div className="absolute bottom-12 left-5 right-5 space-y-3">
 
-          {/* SWITCH KE ADMIN */}
-          <button
-            onClick={() => {
-              setRole("admin");
-              onClose();
-              router.push("/admin/dashboard");
-            }}
-            className="w-full px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 transition text-sm font-semibold"
-          >
-            🔧 Pindah ke Admin
-          </button>
-
           {/* LOGOUT */}
           <button
             onClick={() => {

@@ -86,27 +86,6 @@ export default function Sidebar({ open, onClose }: any) {
         {/* BOTTOM ACTION */}
         <div className="absolute bottom-12 left-5 right-5 space-y-3">
 
-          {/* SWITCH ROLE */}
-          <button
-            onClick={() => {
-              const newRole = role === "admin" ? "pelanggan" : "admin";
-              setRole(newRole);
-
-              onClose();
-
-              if (newRole === "admin") {
-                router.push("/admin/dashboard");
-              } else {
-                router.push("/pelanggan/home");
-              }
-            }}
-            className="w-full px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 transition text-sm font-semibold"
-          >
-            {role === "admin"
-              ? "👤 Pindah ke Pelanggan"
-              : "🔧 Pindah ke Admin"}
-          </button>
-
           {/* LOGOUT */}
           <button
             onClick={() => {

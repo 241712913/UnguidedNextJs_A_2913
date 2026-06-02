@@ -61,8 +61,8 @@ export async function POST(req: NextRequest) {
     );
 
     // Set cookie role (readable by middleware) and user (httpOnly)
-    res.cookies.set("role", user.role, { path: "/", maxAge: 60 * 60 });
-    res.cookies.set("user", JSON.stringify({ id: user.id, nama: user.nama }), { path: "/", httpOnly: true, maxAge: 60 * 60 });
+    res.cookies.set("role", user.role, { path: "/", maxAge: 60 * 60, sameSite: "lax" });
+    res.cookies.set("user", JSON.stringify({ id: user.id, nama: user.nama }), { path: "/", httpOnly: true, maxAge: 60 * 60, sameSite: "lax" });
     return res;
   } catch {
     return NextResponse.json(
