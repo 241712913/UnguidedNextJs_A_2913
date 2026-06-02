@@ -19,6 +19,9 @@ export default function ProfilAdminPage() {
     new: "",
     confirm: "",
   });
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [passwordSuccess, setPasswordSuccess] = useState<string | null>(null);
+  const [passwordLoading, setPasswordLoading] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -50,25 +53,53 @@ export default function ProfilAdminPage() {
     (item) => item.status_id !== 5
   ).length;
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    setPasswordError(null);
+    setPasswordSuccess(null);
+
     if (!password.old || !password.new || !password.confirm) {
-      alert("Lengkapi semua field password");
+      setPasswordError("Lengkapi semua field password");
+      return;
+    }
+
+    if (password.new.length < 6) {
+      setPasswordError("Password baru minimal 6 karakter.");
       return;
     }
 
     if (password.new !== password.confirm) {
-      alert("Konfirmasi password tidak cocok");
+      setPasswordError("Konfirmasi password tidak cocok");
       return;
     }
 
-    setShowToast(true);
-    setTimeout(() => setShowToast(false), 2500);
+    setPasswordLoading(true);
 
-    setPassword({
-      old: "",
-      new: "",
-      confirm: "",
-    });
+    try {
+      const res = await fetch("/api/auth/change-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          currentPassword: password.old,
+          newPassword: password.new,
+          confirmPassword: password.confirm,
+        }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setPasswordError(data.message ?? "Gagal mengganti password.");
+        return;
+      }
+
+      setPasswordSuccess(data.message ?? "Password berhasil diperbarui.");
+      setPassword({ old: "", new: "", confirm: "" });
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 2500);
+    } catch {
+      setPasswordError("Tidak dapat terhubung ke server. Coba lagi nanti.");
+    } finally {
+      setPasswordLoading(false);
+    }
   };
 
   const handleLogout = () => {
@@ -203,13 +234,26 @@ export default function ProfilAdminPage() {
             </div>
           ) : (
             <>
+              {passwordError && (
+                <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                  {passwordError}
+                </div>
+              )}
+              {passwordSuccess && (
+                <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+                  {passwordSuccess}
+                </div>
+              )}
+
               <input
                 type="password"
                 placeholder="Password lama"
                 value={password.old}
-                onChange={(e) =>
-                  setPassword({ ...password, old: e.target.value })
-                }
+                onChange={(e) => {
+                  setPassword({ ...password, old: e.target.value });
+                  setPasswordError(null);
+                  setPasswordSuccess(null);
+                }}
                 className="w-full p-3 rounded-xl border border-gray-200"
               />
 
@@ -217,9 +261,11 @@ export default function ProfilAdminPage() {
                 type="password"
                 placeholder="Password baru"
                 value={password.new}
-                onChange={(e) =>
-                  setPassword({ ...password, new: e.target.value })
-                }
+                onChange={(e) => {
+                  setPassword({ ...password, new: e.target.value });
+                  setPasswordError(null);
+                  setPasswordSuccess(null);
+                }}
                 className="w-full p-3 rounded-xl border border-gray-200"
               />
 
@@ -227,17 +273,20 @@ export default function ProfilAdminPage() {
                 type="password"
                 placeholder="Konfirmasi password"
                 value={password.confirm}
-                onChange={(e) =>
-                  setPassword({ ...password, confirm: e.target.value })
-                }
+                onChange={(e) => {
+                  setPassword({ ...password, confirm: e.target.value });
+                  setPasswordError(null);
+                  setPasswordSuccess(null);
+                }}
                 className="w-full p-3 rounded-xl border border-gray-200"
               />
 
               <button
                 onClick={handleSave}
-                className="w-full bg-emerald-600 text-white py-3 rounded-xl"
+                disabled={passwordLoading}
+                className={`w-full py-3 rounded-xl font-medium transition ${passwordLoading ? "bg-emerald-300 text-white" : "bg-emerald-600 text-white hover:bg-emerald-700"}`}
               >
-                Simpan Password
+                {passwordLoading ? "Menyimpan..." : "Simpan Password"}
               </button>
             </>
           )}

@@ -5,7 +5,7 @@ import type { Metadata } from 'next';
 // ── Metadata default (dipakai semua halaman kecuali di-override) ─────────────
 export const metadata: Metadata = {
   title: {
-    default: 'SahabatKargo.id — Solusi Logistik UMKM Modern',
+    default: 'SahabatKargo.id | Solusi Logistik UMKM Modern',
     template: '%s | SahabatKargo.id',
   },
   description:

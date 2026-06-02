@@ -8,8 +8,9 @@ import { Eye, EyeOff, LogIn, AlertCircle } from "lucide-react";
 export default function LoginClient() {
   const router = useRouter();
 
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [success, setSuccess] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -17,14 +18,17 @@ export default function LoginClient() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setSuccess(null);
 
     // ── Validasi form sisi klien ─────────────────────────────────────────
-    if (!username.trim() || !password.trim()) {
-      setError("Username dan password wajib diisi.");
+    // Harus mengisi email dan password
+    const identifier = email.trim();
+    if (!identifier) {
+      setError("Email wajib diisi.");
       return;
     }
-    if (username.trim().length < 3) {
-      setError("Username minimal 3 karakter.");
+    if (identifier.length < 3 || !identifier.includes("@")) {
+      setError("Masukkan email yang valid.");
       return;
     }
     if (password.length < 6) {
@@ -38,7 +42,7 @@ export default function LoginClient() {
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username: username.trim(), password }),
+        body: JSON.stringify({ email: identifier, password }),
       });
 
       const data = await res.json();
@@ -48,12 +52,20 @@ export default function LoginClient() {
         return;
       }
 
-      // ── Redirect berdasarkan role ───────────────────────────────────
-      if (data.role === "admin") {
-        router.push("/admin/dashboard");
+      // Simpan info sederhana di sessionStorage untuk proteksi route klien
+      try {
+        sessionStorage.setItem("user", JSON.stringify({ role: data.role, nama: data.nama }));
+      } catch {}
+
+      // Tampilkan notifikasi sukses lalu redirect singkat
+      setSuccess(data.message ?? "Login berhasil.");
+      setTimeout(() => {
+        if (data.role === "admin") {
+          router.push("/admin/dashboard");
         } else {
-        router.push("/pelanggan/home");
+          router.push("/pelanggan/home");
         }
+      }, 700);
     } catch {
       setError("Tidak dapat terhubung ke server. Periksa koneksi Anda.");
     } finally {
@@ -94,21 +106,31 @@ export default function LoginClient() {
             </div>
           )}
 
+          {/* Success Banner */}
+          {success && (
+            <div
+              role="status"
+              className="flex items-start gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800"
+            >
+              <span className="font-medium">{success}</span>
+            </div>
+          )}
+
           {/* Form */}
           <form onSubmit={handleLogin} noValidate className="space-y-4">
 
-            {/* Username */}
+            {/* Email */}
             <div className="space-y-1">
-              <label htmlFor="username" className="block text-sm font-medium text-slate-700">
-                Username
+              <label htmlFor="email" className="block text-sm font-medium text-slate-700">
+                Email
               </label>
               <input
-                id="username"
-                type="text"
-                autoComplete="username"
-                value={username}
-                onChange={(e) => { setUsername(e.target.value); setError(null); }}
-                placeholder="Masukkan username"
+                id="email"
+                type="email"
+                autoComplete="email"
+                value={email}
+                onChange={(e) => { setEmail(e.target.value); setError(null); }}
+                placeholder="Masukkan email"
                 className={`w-full rounded-xl border px-4 py-3 text-sm text-slate-900 outline-none transition focus:ring-2 focus:ring-emerald-500 ${
                   error ? "border-red-400 bg-red-50" : "border-slate-300 bg-white"
                 }`}
@@ -166,8 +188,8 @@ export default function LoginClient() {
           {/* Demo credentials */}
           <div className="rounded-xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-xs text-emerald-800 space-y-1">
             <p className="font-semibold">Akun Demo:</p>
-            <p>Admin → admin / admin123</p>
-            <p>Pelanggan → pelanggan / pelanggan123</p>
+            <p>Admin → admin@ekspedisi.com / admin123</p>
+            <p>Pelanggan → pelanggan@ekspedisi.com / pelanggan123</p>
           </div>
 
         </div>

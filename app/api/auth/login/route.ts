@@ -1,21 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
-
-// ─── Data akun statis (ganti dengan query DB sesungguhnya) ────────────────────
-// Di produksi: SELECT * FROM users WHERE username = $1 lalu bandingkan hash bcrypt
-const USERS = [
-  { id: 1, username: "admin", password: "admin123", role: "admin", nama: "Administrator" },
-  { id: 2, username: "pelanggan", password: "pelanggan123", role: "pelanggan", nama: "Pelanggan" },
-];
+import { USERS } from "@/app/lib/users";
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { username, password } = body;
+    const { email, password } = body;
 
     // ── Validasi input ──────────────────────────────────────────────────
-    if (!username || typeof username !== "string") {
+    if (!email || typeof email !== "string") {
       return NextResponse.json(
-        { message: "Username tidak boleh kosong." },
+        { message: "Email tidak boleh kosong." },
+        { status: 400 }
+      );
+    }
+    if (!email.includes("@") || email.trim().length < 3) {
+      return NextResponse.json(
+        { message: "Masukkan email yang valid." },
         { status: 400 }
       );
     }
@@ -27,12 +27,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (username.trim().length < 3) {
-      return NextResponse.json(
-        { message: "Username minimal 3 karakter." },
-        { status: 400 }
-      );
-    }
+    
 
     if (password.length < 6) {
       return NextResponse.json(
@@ -41,9 +36,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // ── Cari user ───────────────────────────────────────────────────────
+    // ── Cari user berdasarkan email ─────────────────
+    const identifier = email.trim();
     const user = USERS.find(
-      (u) => u.username === username.trim() && u.password === password
+      (u) => u.email === identifier && u.password === password
     );
 
     if (!user) {
@@ -53,8 +49,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // ── Sukses: kembalikan info user (tanpa password) ───────────────────
-    return NextResponse.json(
+    // ── Sukses: kembalikan info user (tanpa password) dan set cookie ───
+    const res = NextResponse.json(
       {
         success: true,
         role: user.role,
@@ -63,6 +59,11 @@ export async function POST(req: NextRequest) {
       },
       { status: 200 }
     );
+
+    // Set cookie role (readable by middleware) and user (httpOnly)
+    res.cookies.set("role", user.role, { path: "/", maxAge: 60 * 60 });
+    res.cookies.set("user", JSON.stringify({ id: user.id, nama: user.nama }), { path: "/", httpOnly: true, maxAge: 60 * 60 });
+    return res;
   } catch {
     return NextResponse.json(
       { message: "Terjadi kesalahan internal server. Silakan coba beberapa saat lagi." },

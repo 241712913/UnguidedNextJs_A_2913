@@ -21,6 +21,24 @@ type Shipment = {
   created_at: string;
 };
 
+const STATUS_MAP: Record<number, string> = {
+  1: "Menunggu",
+  2: "Dijemput",
+  3: "Dalam perjalanan",
+  4: "Diantar",
+  5: "Terkirim",
+  6: "Gagal",
+};
+
+const STATUS_STYLE: Record<number, { badge: string; dot: string }> = {
+  1: { badge: "bg-slate-100 text-slate-600",    dot: "bg-slate-400"   },
+  2: { badge: "bg-violet-100 text-violet-700",  dot: "bg-violet-500"  },
+  3: { badge: "bg-amber-100 text-amber-700",    dot: "bg-amber-400"   },
+  4: { badge: "bg-sky-100 text-sky-700",        dot: "bg-sky-500"     },
+  5: { badge: "bg-emerald-100 text-emerald-700",dot: "bg-emerald-500" },
+  6: { badge: "bg-rose-100 text-rose-700",      dot: "bg-rose-500"    },
+};
+
 export default function ShipmentTable({
   shipments,
   loading,
@@ -34,15 +52,6 @@ export default function ShipmentTable({
 }) {
   const [editTarget, setEditTarget] = useState<Shipment | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
-
-  const statusMap: Record<number, string> = {
-    1: "Menunggu",
-    2: "Dijemput",
-    3: "Dalam perjalanan",
-    4: "Diantar",
-    5: "Terkirim",
-    6: "Gagal",
-  };
 
   const handleDelete = async (id: number) => {
     const confirm = window.confirm("Yakin ingin menghapus data pengiriman ini?");
@@ -80,21 +89,21 @@ export default function ShipmentTable({
           </thead>
           <tbody>
 
-            {/* SKELETON — tidak diubah */}
+            {/* SKELETON */}
             {loading ? (
               [1, 2, 3, 4, 5].map((i) => (
                 <tr key={i} className="border-b animate-pulse">
                   <td className="px-6 py-4"><div className="h-4 w-24 bg-gray-200 rounded"></div></td>
                   <td className="px-6 py-4"><div className="h-4 w-32 bg-gray-100 rounded"></div></td>
                   <td className="px-6 py-4"><div className="h-4 w-32 bg-gray-100 rounded"></div></td>
-                  <td className="px-6 py-4"><div className="h-4 w-24 bg-gray-100 rounded"></div></td>
+                  <td className="px-6 py-4"><div className="h-6 w-28 bg-gray-100 rounded-full"></div></td>
                   <td className="px-6 py-4"><div className="h-4 w-24 bg-gray-100 rounded"></div></td>
                   <td className="px-6 py-4"><div className="h-4 w-16 bg-gray-100 rounded mx-auto"></div></td>
                 </tr>
               ))
             ) : shipments.length === 0 ? (
 
-              /* EMPTY — tidak diubah */
+              /* EMPTY */
               <tr>
                 <td colSpan={6} className="text-center py-10 text-gray-400">
                   Data tidak ditemukan
@@ -102,53 +111,53 @@ export default function ShipmentTable({
               </tr>
             ) : (
 
-              /* DATA — tambah tombol Edit & Hapus di kolom Aksi */
-              shipments.map((item) => (
-                <tr key={item.id} className="border-b hover:bg-gray-50 transition">
-                  <td className="px-6 py-4 text-green-600 font-medium">{item.resi}</td>
-                  <td className="px-6 py-4">{item.nama_pengirim}</td>
-                  <td className="px-6 py-4">{item.nama_penerima}</td>
-                  <td className="px-6 py-4">
-                    <span className="text-sm font-medium">
-                      {statusMap[item.status_id] || "-"}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-gray-500">
-                    {new Date(item.created_at).toLocaleDateString("id-ID")}
-                  </td>
-
-                  {/* KOLOM AKSI — Detail tetap ada, tambah Edit & Hapus */}
-                  <td className="px-6 py-4">
-                    <div className="flex items-center justify-center gap-2">
-                      <Link
-                        href={`/admin/shipment/${item.id}`}
-                        className="text-green-600 hover:underline text-sm"
-                      >
-                        Detail
-                      </Link>
-
-                      <button
-                        onClick={() => setEditTarget(item)}
-                        className="flex items-center gap-1 bg-blue-50 hover:bg-blue-100 text-blue-600 px-2.5 py-1.5 rounded-lg text-xs font-medium transition"
-                      >
-                        <Pencil size={12} />
-                        Edit
-                      </button>
-
-                      <button
-                        onClick={() => handleDelete(item.id)}
-                        disabled={deletingId === item.id}
-                        className="flex items-center gap-1 bg-red-50 hover:bg-red-100 text-red-600 px-2.5 py-1.5 rounded-lg text-xs font-medium transition disabled:opacity-50"
-                      >
-                        {deletingId === item.id
-                          ? <Loader2 size={12} className="animate-spin" />
-                          : <Trash2 size={12} />}
-                        Hapus
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))
+              /* DATA */
+              shipments.map((item) => {
+                const style = STATUS_STYLE[item.status_id] ?? { badge: "bg-slate-100 text-slate-600", dot: "bg-slate-400" };
+                return (
+                  <tr key={item.id} className="border-b hover:bg-gray-50 transition">
+                    <td className="px-6 py-4 text-green-600 font-medium">{item.resi}</td>
+                    <td className="px-6 py-4">{item.nama_pengirim}</td>
+                    <td className="px-6 py-4">{item.nama_penerima}</td>
+                    <td className="px-6 py-4">
+                      <span className={`inline-flex items-center gap-1.5 text-xs px-3 py-1 rounded-full font-medium ${style.badge}`}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${style.dot}`} />
+                        {STATUS_MAP[item.status_id] || "-"}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-gray-500">
+                      {new Date(item.created_at).toLocaleDateString("id-ID")}
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center justify-center gap-2">
+                        <Link
+                          href={`/admin/shipment/${item.id}`}
+                          className="text-green-600 hover:underline text-sm"
+                        >
+                          Detail
+                        </Link>
+                        <button
+                          onClick={() => setEditTarget(item)}
+                          className="flex items-center gap-1 bg-blue-50 hover:bg-blue-100 text-blue-600 px-2.5 py-1.5 rounded-lg text-xs font-medium transition"
+                        >
+                          <Pencil size={12} />
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDelete(item.id)}
+                          disabled={deletingId === item.id}
+                          className="flex items-center gap-1 bg-red-50 hover:bg-red-100 text-red-600 px-2.5 py-1.5 rounded-lg text-xs font-medium transition disabled:opacity-50"
+                        >
+                          {deletingId === item.id
+                            ? <Loader2 size={12} className="animate-spin" />
+                            : <Trash2 size={12} />}
+                          Hapus
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })
             )}
 
           </tbody>

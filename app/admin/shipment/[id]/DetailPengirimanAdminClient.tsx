@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { ArrowLeft, MapPin, Package, Clipboard } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 
 import Navbar from "@/app/ui/navbar";
 import Sidebar from "@/app/admin/ui/sidebar";
@@ -14,6 +14,15 @@ const STATUS_MAP: Record<number, string> = {
   4: "Diantar",
   5: "Terkirim",
   6: "Gagal",
+};
+
+const STATUS_STYLE: Record<number, { badge: string; dot: string }> = {
+  1: { badge: "bg-slate-100 text-slate-600",   dot: "bg-slate-400"   },
+  2: { badge: "bg-violet-100 text-violet-700",  dot: "bg-violet-500"  },
+  3: { badge: "bg-amber-100 text-amber-700",    dot: "bg-amber-400"   },
+  4: { badge: "bg-sky-100 text-sky-700",        dot: "bg-sky-500"     },
+  5: { badge: "bg-emerald-100 text-emerald-700",dot: "bg-emerald-500" },
+  6: { badge: "bg-rose-100 text-rose-700",      dot: "bg-rose-500"    },
 };
 
 export default function ShipmentDetailPage() {
@@ -30,9 +39,7 @@ export default function ShipmentDetailPage() {
     async function fetchShipment() {
       try {
         const res = await fetch(`/api/pengiriman/${params.id}`);
-        if (!res.ok) {
-          throw new Error("Gagal memuat data");
-        }
+        if (!res.ok) throw new Error("Gagal memuat data");
         const data = await res.json();
         setShipment(data);
       } catch (error) {
@@ -89,14 +96,15 @@ export default function ShipmentDetailPage() {
     );
   }
 
-  const statusText = STATUS_MAP[shipment.status_id] || shipment.status || "Menunggu";
+  const statusText  = STATUS_MAP[shipment.status_id] || shipment.status || "Menunggu";
+  const statusStyle = STATUS_STYLE[shipment.status_id] ?? { badge: "bg-slate-100 text-slate-600", dot: "bg-slate-400" };
   const pengirimanDate = shipment.created_at
     ? new Date(shipment.created_at).toLocaleDateString("id-ID")
     : "-";
   const pengirimPhone = shipment.no_hp_pengirim || shipment.hp_pengirim || "-";
   const penerimaPhone = shipment.no_hp_penerima || shipment.hp_penerima || "-";
-  const layananText = shipment.layanan || shipment.metode || "Reguler";
-  const totalOngkir = Number(shipment.total_ongkir ?? shipment.ongkir ?? 0);
+  const layananText   = shipment.layanan || shipment.metode || "Reguler";
+  const totalOngkir   = Number(shipment.total_ongkir ?? shipment.ongkir ?? 0);
 
   return (
     <div className="bg-slate-50 min-h-screen">
@@ -119,9 +127,11 @@ export default function ShipmentDetailPage() {
           >
             <ArrowLeft size={18} /> Kembali ke daftar
           </button>
+
           <div className="bg-white rounded-3xl p-6 shadow w-full md:w-auto">
-            <p className="text-sm text-gray-500">Status Pengiriman</p>
-            <span className="inline-flex items-center rounded-full bg-emerald-100 px-3 py-1 text-sm font-semibold text-emerald-700">
+            <p className="text-sm text-gray-500 mb-2">Status Pengiriman</p>
+            <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-semibold ${statusStyle.badge}`}>
+              <span className={`w-2 h-2 rounded-full ${statusStyle.dot}`} />
               {statusText}
             </span>
           </div>

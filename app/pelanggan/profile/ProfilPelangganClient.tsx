@@ -12,6 +12,12 @@ export default function ProfilPelangganClient() {
   const [loading, setLoading] = useState(true);
   const [showToast, setShowToast] = useState(false);
   const [profile, setProfile] = useState({ nama: "", email: "", perusahaan: "", nomor_hp: "", kota: "", alamat: "" });
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [passwordSuccess, setPasswordSuccess] = useState<string | null>(null);
+  const [passwordLoading, setPasswordLoading] = useState(false);
 
   useEffect(() => {
     fetch("/api/profile")
@@ -32,6 +38,49 @@ export default function ProfilPelangganClient() {
   const handleSave = () => {
     setShowToast(true);
     setTimeout(() => setShowToast(false), 2500);
+  };
+
+  const handleChangePassword = async () => {
+    setPasswordError(null);
+    setPasswordSuccess(null);
+
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      setPasswordError("Semua field password wajib diisi.");
+      return;
+    }
+    if (newPassword.length < 6) {
+      setPasswordError("Password baru minimal 6 karakter.");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setPasswordError("Konfirmasi password tidak cocok.");
+      return;
+    }
+
+    setPasswordLoading(true);
+
+    try {
+      const res = await fetch("/api/auth/change-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ currentPassword, newPassword, confirmPassword }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setPasswordError(data.message ?? "Gagal mengganti password.");
+        return;
+      }
+
+      setPasswordSuccess(data.message ?? "Password berhasil diubah.");
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+    } catch {
+      setPasswordError("Tidak dapat terhubung ke server. Coba lagi nanti.");
+    } finally {
+      setPasswordLoading(false);
+    }
   };
 
   const handleLogout = () => { router.push("/"); };
@@ -82,10 +131,44 @@ export default function ProfilPelangganClient() {
         </div>
         <div className="bg-white rounded-3xl p-6 shadow-sm border space-y-4">
           <h3 className="font-semibold flex items-center gap-2"><Lock size={16} className="text-emerald-600" />Ubah Kata Sandi</h3>
-          <input type="password" placeholder="Password lama" className="w-full p-3 rounded-xl border border-gray-200" />
-          <input type="password" placeholder="Password baru" className="w-full p-3 rounded-xl border border-gray-200" />
-          <input type="password" placeholder="Konfirmasi password" className="w-full p-3 rounded-xl border border-gray-200" />
-          <button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl font-medium transition">Simpan Password</button>
+          {passwordError && (
+            <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              {passwordError}
+            </div>
+          )}
+          {passwordSuccess && (
+            <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+              {passwordSuccess}
+            </div>
+          )}
+          <input
+            type="password"
+            placeholder="Password lama"
+            value={currentPassword}
+            onChange={(e) => { setCurrentPassword(e.target.value); setPasswordError(null); setPasswordSuccess(null); }}
+            className="w-full p-3 rounded-xl border border-gray-200"
+          />
+          <input
+            type="password"
+            placeholder="Password baru"
+            value={newPassword}
+            onChange={(e) => { setNewPassword(e.target.value); setPasswordError(null); setPasswordSuccess(null); }}
+            className="w-full p-3 rounded-xl border border-gray-200"
+          />
+          <input
+            type="password"
+            placeholder="Konfirmasi password"
+            value={confirmPassword}
+            onChange={(e) => { setConfirmPassword(e.target.value); setPasswordError(null); setPasswordSuccess(null); }}
+            className="w-full p-3 rounded-xl border border-gray-200"
+          />
+          <button
+            onClick={handleChangePassword}
+            disabled={passwordLoading}
+            className={`w-full py-3 rounded-xl font-medium transition ${passwordLoading ? "bg-emerald-300 text-white" : "bg-emerald-600 hover:bg-emerald-700 text-white"}`}
+          >
+            {passwordLoading ? "Menyimpan..." : "Simpan Password"}
+          </button>
         </div>
         <button onClick={handleLogout} className="w-full bg-white border border-red-200 text-red-500 py-3 rounded-2xl font-medium hover:bg-red-50 transition">Keluar dari Akun</button>
       </div>

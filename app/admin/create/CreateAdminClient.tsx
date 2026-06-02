@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 
 import Navbar from "@/app/ui/navbar";
 import Sidebar from "@/app/admin/ui/sidebar";
+import { useRouter } from "next/navigation";
 
 export default function CreatePage() {
 
@@ -63,6 +64,8 @@ export default function CreatePage() {
 
   const [metode, setMetode] =
     useState("Reguler");
+  
+  const router = useRouter();
 
   // GENERATE RESI
   useEffect(() => {
@@ -684,12 +687,10 @@ export default function CreatePage() {
                 </button>
 
                 <button
-                  onClick={() =>
-                    setShowModal(false)
-                  }
-                  className="flex-1 bg-gray-300 py-2 rounded-lg"
+                  onClick={() => router.push("/admin/dashboard")}
+                  className="flex-1 bg-gray-800 hover:bg-black text-white py-2 rounded-lg font-semibold"
                 >
-                  Tutup
+                  Selesai
                 </button>
 
               </div>
