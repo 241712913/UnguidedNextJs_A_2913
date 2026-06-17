@@ -166,16 +166,120 @@ function StepIndicator({ step }: { step: number }) {
   );
 }
 
-// ─── DRAFT PELANGGAN SECTION ──────────────────────────────────────────────────
-function DraftPelangganSection({ onPrefill }: {
-  onPrefill: (draft: DraftPelanggan) => void;
+// ─── DRAFT SECTION (PELANGGAN + ADMIN) ───────────────────────────────────────
+function DraftCard({
+  draft,
+  onPrefill,
+  onDelete,
+  deletingId,
+  expandedId,
+  setExpandedId,
+}: {
+  draft: DraftPelanggan;
+  onPrefill: (d: DraftPelanggan) => void;
+  onDelete: (id: number) => void;
+  deletingId: number | null;
+  expandedId: number | null;
+  setExpandedId: (id: number | null) => void;
 }) {
-  const [drafts,      setDrafts]      = useState<DraftPelanggan[]>([]);
-  const [loading,     setLoading]     = useState(true);
-  const [expandedId,  setExpandedId]  = useState<number | null>(null);
-  const [deletingId,  setDeletingId]  = useState<number | null>(null);
-  const [collapsed,   setCollapsed]   = useState(false);
-  const [toastMsg,    setToastMsg]    = useState("");
+  const expanded = expandedId === draft.id;
+  const layanan  = LAYANAN_MAP[draft.layanan_id] ?? "Reguler";
+
+  return (
+    <div className="bg-white">
+      {/* Row utama */}
+      <div
+        className="flex items-center justify-between px-5 py-3 cursor-pointer hover:bg-amber-50/50 transition"
+        onClick={() => setExpandedId(expanded ? null : draft.id)}
+      >
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-sm font-semibold text-gray-800 truncate">
+              {draft.nama_pelanggan || draft.nama_pengirim}
+            </span>
+            <span className="text-gray-400 text-xs">→</span>
+            <span className="text-sm text-gray-700 truncate">{draft.nama_penerima}</span>
+          </div>
+          <div className="flex items-center gap-3 mt-0.5">
+            <span className="text-xs text-gray-400">
+              {draft.kecamatan_penerima
+                ? `${draft.kecamatan_penerima}, ${draft.kota_penerima}`
+                : draft.kota_penerima || "—"}
+            </span>
+            <span className="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">{layanan}</span>
+            <span className="text-xs text-gray-400">{draft.berat} kg</span>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 ml-3 flex-shrink-0">
+          <span className="text-sm font-bold text-emerald-700">
+            Rp {Number(draft.ongkir).toLocaleString("id-ID")}
+          </span>
+          {expanded
+            ? <ChevronUp size={14} className="text-gray-400" />
+            : <ChevronDown size={14} className="text-gray-400" />}
+        </div>
+      </div>
+
+      {/* Expanded detail */}
+      {expanded && (
+        <div className="px-5 pb-4 pt-1 bg-amber-50/40 space-y-3 border-t border-amber-100">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div className="bg-white rounded-xl p-3 space-y-1 border border-amber-100">
+              <p className="font-bold text-emerald-600 uppercase tracking-wide mb-1">Pengirim</p>
+              <p><span className="text-gray-400">Nama:</span> {draft.nama_pengirim}</p>
+              <p><span className="text-gray-400">HP:</span> +{draft.no_hp_pengirim}</p>
+              <p><span className="text-gray-400">Alamat:</span> {draft.alamat_pengirim}</p>
+            </div>
+            <div className="bg-white rounded-xl p-3 space-y-1 border border-amber-100">
+              <p className="font-bold text-emerald-600 uppercase tracking-wide mb-1">Penerima</p>
+              <p><span className="text-gray-400">Nama:</span> {draft.nama_penerima}</p>
+              <p><span className="text-gray-400">HP:</span> +{draft.no_hp_penerima}</p>
+              <p><span className="text-gray-400">Alamat:</span> {draft.alamat_penerima}</p>
+              {draft.kecamatan_penerima && (
+                <p><span className="text-gray-400">Kecamatan:</span> {draft.kecamatan_penerima}, {draft.kota_penerima}</p>
+              )}
+            </div>
+          </div>
+          <div className="bg-white rounded-xl p-3 text-xs border border-amber-100 flex flex-wrap gap-x-6 gap-y-1">
+            <p><span className="text-gray-400">Berat:</span> <strong>{draft.berat} kg</strong></p>
+            <p><span className="text-gray-400">Layanan:</span> <strong>{layanan}</strong></p>
+            {draft.kategori_barang && <p><span className="text-gray-400">Kategori:</span> {draft.kategori_barang}</p>}
+            {draft.mudah_pecah && <p><span className="text-gray-400">Mudah Pecah:</span> {draft.mudah_pecah}</p>}
+            <p><span className="text-gray-400">Tanggal:</span> {new Date(draft.created_at).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })}</p>
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => { onPrefill(draft); setExpandedId(null); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+              className="flex-1 bg-gradient-to-r from-emerald-700 to-emerald-600 text-white py-2.5 rounded-xl text-xs font-bold hover:opacity-90 transition"
+            >
+              ✅ Lanjutkan — Isi ke Form
+            </button>
+            <button
+              onClick={() => onDelete(draft.id)}
+              disabled={deletingId === draft.id}
+              className="border-2 border-rose-200 text-rose-500 hover:bg-rose-50 py-2.5 px-4 rounded-xl text-xs font-bold transition disabled:opacity-50 flex items-center gap-1"
+            >
+              {deletingId === draft.id
+                ? <span className="w-3 h-3 border-2 border-rose-400 border-t-transparent rounded-full animate-spin" />
+                : <Trash2 size={13} />}
+              Hapus
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function DraftPelangganSection({ onPrefill }: { onPrefill: (draft: DraftPelanggan) => void }) {
+  const [draftsPelanggan, setDraftsPelanggan] = useState<DraftPelanggan[]>([]);
+  const [draftsAdmin,     setDraftsAdmin]     = useState<DraftPelanggan[]>([]);
+  const [loading,         setLoading]         = useState(true);
+  const [expandedId,      setExpandedId]      = useState<number | null>(null);
+  const [deletingId,      setDeletingId]      = useState<number | null>(null);
+  const [collapsedCust,   setCollapsedCust]   = useState(false);
+  const [collapsedAdmin,  setCollapsedAdmin]  = useState(false);
+  const [toastMsg,        setToastMsg]        = useState("");
 
   const showToast = (msg: string) => {
     setToastMsg(msg);
@@ -183,10 +287,14 @@ function DraftPelangganSection({ onPrefill }: {
   };
 
   useEffect(() => {
-    // ✅ GANTI 1: /api/admin/drafts → /api/admin/pengiriman?owner=customer
-    fetch("/api/admin/pengiriman?owner=customer")
-      .then((r) => r.json())
-      .then((res) => { if (res.success) setDrafts(res.data); })
+    Promise.all([
+      fetch("/api/admin/pengiriman?owner=customer").then(r => r.json()),
+      fetch("/api/admin/pengiriman?owner=admin").then(r => r.json()),
+    ])
+      .then(([resCust, resAdmin]) => {
+        if (resCust.success)  setDraftsPelanggan(resCust.data);
+        if (resAdmin.success) setDraftsAdmin(resAdmin.data);
+      })
       .catch(console.error)
       .finally(() => setLoading(false));
   }, []);
@@ -195,15 +303,15 @@ function DraftPelangganSection({ onPrefill }: {
     if (!confirm("Hapus draft ini?")) return;
     setDeletingId(id);
     try {
-      // ✅ GANTI 2: /api/admin/drafts → /api/admin/pengiriman
-      const res = await fetch("/api/admin/pengiriman", {
-        method: "DELETE",
+      const res    = await fetch("/api/admin/pengiriman", {
+        method:  "DELETE",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id }),
+        body:    JSON.stringify({ id }),
       });
       const result = await res.json();
       if (result.success) {
-        setDrafts((prev) => prev.filter((d) => d.id !== id));
+        setDraftsPelanggan(prev => prev.filter(d => d.id !== id));
+        setDraftsAdmin(prev => prev.filter(d => d.id !== id));
         setExpandedId(null);
         showToast("✅ Draft dihapus");
       } else {
@@ -214,8 +322,10 @@ function DraftPelangganSection({ onPrefill }: {
     }
   };
 
+  const sharedCardProps = { onPrefill, onDelete: handleDelete, deletingId, expandedId, setExpandedId };
+
   return (
-    <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+    <div className="space-y-3">
       {/* Toast */}
       {toastMsg && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-emerald-700 text-white text-sm font-semibold px-5 py-3 rounded-2xl shadow-xl z-50">
@@ -223,151 +333,97 @@ function DraftPelangganSection({ onPrefill }: {
         </div>
       )}
 
-      {/* Header section */}
-      <button
-        onClick={() => setCollapsed((v) => !v)}
-        className="w-full flex items-center justify-between px-5 py-4 hover:bg-gray-50 transition"
-      >
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-xl bg-amber-100 flex items-center justify-center text-amber-600 text-sm">📋</div>
-          <div className="text-left">
-            <p className="font-bold text-gray-800 text-sm">Draft dari Pelanggan</p>
-            <p className="text-xs text-gray-400">
-              {loading ? "Memuat..." : `${drafts.length} draft menunggu diproses`}
-            </p>
+      {/* ── Draft dari Pelanggan ── */}
+      <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+        <button
+          onClick={() => setCollapsedCust(v => !v)}
+          className="w-full flex items-center justify-between px-5 py-4 hover:bg-gray-50 transition"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl bg-amber-100 flex items-center justify-center text-amber-600 text-sm">📋</div>
+            <div className="text-left">
+              <p className="font-bold text-gray-800 text-sm">Draft dari Pelanggan</p>
+              <p className="text-xs text-gray-400">
+                {loading ? "Memuat..." : `${draftsPelanggan.length} draft menunggu diproses`}
+              </p>
+            </div>
           </div>
-        </div>
-        <div className="flex items-center gap-2">
-          {drafts.length > 0 && (
-            <span className="bg-amber-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
-              {drafts.length}
-            </span>
-          )}
-          {collapsed ? <ChevronDown size={16} className="text-gray-400" /> : <ChevronUp size={16} className="text-gray-400" />}
-        </div>
-      </button>
+          <div className="flex items-center gap-2">
+            {draftsPelanggan.length > 0 && (
+              <span className="bg-amber-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                {draftsPelanggan.length}
+              </span>
+            )}
+            {collapsedCust ? <ChevronDown size={16} className="text-gray-400" /> : <ChevronUp size={16} className="text-gray-400" />}
+          </div>
+        </button>
 
-      {/* List draft */}
-      {!collapsed && (
-        <div className="border-t border-gray-100">
-          {loading ? (
-            <div className="p-4 space-y-2">
-              {[1, 2].map((i) => (
-                <div key={i} className="h-16 bg-gray-100 rounded-xl animate-pulse" />
-              ))}
+        {!collapsedCust && (
+          <div className="border-t border-gray-100">
+            {loading ? (
+              <div className="p-4 space-y-2">
+                {[1, 2].map(i => <div key={i} className="h-16 bg-gray-100 rounded-xl animate-pulse" />)}
+              </div>
+            ) : draftsPelanggan.length === 0 ? (
+              <div className="py-8 text-center">
+                <p className="text-sm text-gray-400">Belum ada draft dari pelanggan</p>
+              </div>
+            ) : (
+              <div className="divide-y divide-gray-50">
+                {draftsPelanggan.map(draft => (
+                  <DraftCard key={draft.id} draft={draft} {...sharedCardProps} />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* ── Draft dari Admin ── */}
+      <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+        <button
+          onClick={() => setCollapsedAdmin(v => !v)}
+          className="w-full flex items-center justify-between px-5 py-4 hover:bg-gray-50 transition"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl bg-sky-100 flex items-center justify-center text-sky-600 text-sm">📝</div>
+            <div className="text-left">
+              <p className="font-bold text-gray-800 text-sm">Draft Admin</p>
+              <p className="text-xs text-gray-400">
+                {loading ? "Memuat..." : `${draftsAdmin.length} draft belum diaktifkan`}
+              </p>
             </div>
-          ) : drafts.length === 0 ? (
-            <div className="py-8 text-center">
-              <p className="text-sm text-gray-400">Belum ada draft dari pelanggan</p>
-            </div>
-          ) : (
-            <div className="divide-y divide-gray-50">
-              {drafts.map((draft) => {
-                const expanded = expandedId === draft.id;
-                const layanan  = LAYANAN_MAP[draft.layanan_id] ?? "Reguler";
-                const stripHp  = (hp: string) => hp?.startsWith("62") ? hp.slice(2) : (hp ?? "");
+          </div>
+          <div className="flex items-center gap-2">
+            {draftsAdmin.length > 0 && (
+              <span className="bg-sky-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                {draftsAdmin.length}
+              </span>
+            )}
+            {collapsedAdmin ? <ChevronDown size={16} className="text-gray-400" /> : <ChevronUp size={16} className="text-gray-400" />}
+          </div>
+        </button>
 
-                return (
-                  <div key={draft.id} className="bg-white">
-                    {/* Row utama */}
-                    <div
-                      className="flex items-center justify-between px-5 py-3 cursor-pointer hover:bg-amber-50/50 transition"
-                      onClick={() => setExpandedId(expanded ? null : draft.id)}
-                    >
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className="text-sm font-semibold text-gray-800 truncate">
-                            {draft.nama_pelanggan || draft.nama_pengirim}
-                          </span>
-                          <span className="text-gray-400 text-xs">→</span>
-                          <span className="text-sm text-gray-700 truncate">{draft.nama_penerima}</span>
-                        </div>
-                        <div className="flex items-center gap-3 mt-0.5">
-                          <span className="text-xs text-gray-400">
-                            {draft.kecamatan_penerima
-                              ? `${draft.kecamatan_penerima}, ${draft.kota_penerima}`
-                              : draft.kota_penerima || "—"}
-                          </span>
-                          <span className="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">{layanan}</span>
-                          <span className="text-xs text-gray-400">{draft.berat} kg</span>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2 ml-3 flex-shrink-0">
-                        <span className="text-sm font-bold text-emerald-700">
-                          Rp {Number(draft.ongkir).toLocaleString("id-ID")}
-                        </span>
-                        {expanded
-                          ? <ChevronUp size={14} className="text-gray-400" />
-                          : <ChevronDown size={14} className="text-gray-400" />}
-                      </div>
-                    </div>
-
-                    {/* Expanded detail */}
-                    {expanded && (
-                      <div className="px-5 pb-4 pt-1 bg-amber-50/40 space-y-3 border-t border-amber-100">
-                        {/* Info pelanggan */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                          <div className="bg-white rounded-xl p-3 space-y-1 border border-amber-100">
-                            <p className="font-bold text-emerald-600 uppercase tracking-wide mb-1">Pengirim</p>
-                            <p><span className="text-gray-400">Nama:</span> {draft.nama_pengirim}</p>
-                            <p><span className="text-gray-400">HP:</span> +{draft.no_hp_pengirim}</p>
-                            <p><span className="text-gray-400">Alamat:</span> {draft.alamat_pengirim}</p>
-                          </div>
-                          <div className="bg-white rounded-xl p-3 space-y-1 border border-amber-100">
-                            <p className="font-bold text-emerald-600 uppercase tracking-wide mb-1">Penerima</p>
-                            <p><span className="text-gray-400">Nama:</span> {draft.nama_penerima}</p>
-                            <p><span className="text-gray-400">HP:</span> +{draft.no_hp_penerima}</p>
-                            <p><span className="text-gray-400">Alamat:</span> {draft.alamat_penerima}</p>
-                            {draft.kecamatan_penerima && (
-                              <p><span className="text-gray-400">Kecamatan:</span> {draft.kecamatan_penerima}, {draft.kota_penerima}</p>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Barang */}
-                        <div className="bg-white rounded-xl p-3 text-xs border border-amber-100 flex flex-wrap gap-x-6 gap-y-1">
-                          <p><span className="text-gray-400">Berat:</span> <strong>{draft.berat} kg</strong></p>
-                          <p><span className="text-gray-400">Layanan:</span> <strong>{layanan}</strong></p>
-                          {draft.kategori_barang && <p><span className="text-gray-400">Kategori:</span> {draft.kategori_barang}</p>}
-                          {draft.mudah_pecah && <p><span className="text-gray-400">Mudah Pecah:</span> {draft.mudah_pecah}</p>}
-                          <p><span className="text-gray-400">Tanggal:</span> {new Date(draft.created_at).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })}</p>
-                        </div>
-
-                        {/* Tombol aksi */}
-                        <div className="flex gap-2">
-                          {/* Proses → prefill form di bawah */}
-                          <button
-                            onClick={() => {
-                              onPrefill(draft);
-                              setExpandedId(null);
-                              window.scrollTo({ top: 0, behavior: "smooth" });
-                            }}
-                            className="flex-1 bg-gradient-to-r from-emerald-700 to-emerald-600 text-white py-2.5 rounded-xl text-xs font-bold hover:opacity-90 transition"
-                          >
-                            ✅ Proses — Isi ke Form
-                          </button>
-
-                          {/* Hapus */}
-                          <button
-                            onClick={() => handleDelete(draft.id)}
-                            disabled={deletingId === draft.id}
-                            className="border-2 border-rose-200 text-rose-500 hover:bg-rose-50 py-2.5 px-4 rounded-xl text-xs font-bold transition disabled:opacity-50 flex items-center gap-1"
-                          >
-                            {deletingId === draft.id
-                              ? <span className="w-3 h-3 border-2 border-rose-400 border-t-transparent rounded-full animate-spin" />
-                              : <Trash2 size={13} />}
-                            Hapus
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      )}
+        {!collapsedAdmin && (
+          <div className="border-t border-gray-100">
+            {loading ? (
+              <div className="p-4 space-y-2">
+                {[1, 2].map(i => <div key={i} className="h-16 bg-gray-100 rounded-xl animate-pulse" />)}
+              </div>
+            ) : draftsAdmin.length === 0 ? (
+              <div className="py-8 text-center">
+                <p className="text-sm text-gray-400">Belum ada draft yang disimpan admin</p>
+              </div>
+            ) : (
+              <div className="divide-y divide-gray-50">
+                {draftsAdmin.map(draft => (
+                  <DraftCard key={draft.id} draft={draft} {...sharedCardProps} />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

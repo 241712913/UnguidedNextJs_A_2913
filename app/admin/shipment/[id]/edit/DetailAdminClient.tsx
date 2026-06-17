@@ -316,7 +316,7 @@ export default function EditShipmentPage() {
                 className="mt-2 w-full rounded-2xl border border-gray-200 px-4 py-3"
               >
                 <option value={1}>Menunggu</option>
-                <option value={2}>Transit</option>
+                <option value={2}>Dijemput</option>
                 <option value={3}>Dalam perjalanan</option>
                 <option value={4}>Diantar</option>
                 <option value={5}>Terkirim</option>

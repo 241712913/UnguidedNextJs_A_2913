@@ -173,6 +173,14 @@ export default function HomePage() {
                 <p className="text-xs text-slate-400">Edit & hapus sebelum diproses admin</p>
               </div>
             </div>
+            {/* TOMBOL BUAT DRAFT */}
+            <button
+              onClick={() => router.push("/pelanggan/create")}
+              className="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-3 py-2 rounded-xl transition"
+            >
+              <Plus size={13} />
+              Buat Draft
+            </button>
           </div>
 
           {loadingDraft ? (
@@ -186,12 +194,6 @@ export default function HomePage() {
               <div className="text-3xl mb-2">📋</div>
               <p className="text-sm font-semibold text-slate-600">Belum ada draft</p>
               <p className="text-xs text-slate-400 mt-1">Buat pengiriman baru atau gunakan repeat order</p>
-              <button
-                onClick={() => router.push("/pelanggan/create")}
-                className="mt-3 bg-emerald-600 text-white text-xs font-semibold px-4 py-2 rounded-xl hover:bg-emerald-700 transition"
-              >
-                + Buat Draft
-              </button>
             </div>
           ) : (
             <div className="space-y-2">

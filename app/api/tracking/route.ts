@@ -5,12 +5,12 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 const STATUS_MAP: Record<number, string> = {
-  1: "Diproses",
-  2: "Dikirim",
-  3: "Dikirim",
-  4: "Selesai",
-  5: "Selesai",
-  6: "Dikembalikan",
+  1: "Menunggu",
+  2: "Dijemput",
+  3: "Dalam perjalanan",
+  4: "Diantar",
+  5: "Terkirim",
+  6: "Gagal",
 };
 
 export async function GET(req: NextRequest) {
@@ -19,7 +19,10 @@ export async function GET(req: NextRequest) {
 
   if (!resi) {
     return NextResponse.json(
-      { result: null, message: "Resi tidak boleh kosong" },
+      {
+        result: null,
+        message: "Resi tidak boleh kosong",
+      },
       { status: 400 }
     );
   }
@@ -34,12 +37,15 @@ export async function GET(req: NextRequest) {
         created_at,
         status_id
       FROM pengiriman
-      WHERE resi ILIKE ${"%" + resi + "%"}
+      WHERE resi = ${resi}
       LIMIT 1
     `;
 
     if (result.rows.length === 0) {
-      return NextResponse.json({ result: null });
+      return NextResponse.json({
+        result: null,
+        message: "Resi tidak ditemukan",
+      });
     }
 
     const row = result.rows[0];
@@ -52,23 +58,29 @@ export async function GET(req: NextRequest) {
         })
       : null;
 
-    const status = STATUS_MAP[row.status_id] ?? "Diproses";
+    const status_id = row.status_id ?? 1;
+    const status = STATUS_MAP[status_id] ?? "Menunggu";
 
     return NextResponse.json({
       result: {
-        resi:            row.resi,
+        resi: row.resi,
         status,
+        status_id, 
         alamat_pengirim: row.alamat_pengirim,
         alamat_penerima: row.alamat_penerima,
-        berat:           row.berat,
+        berat: row.berat,
         tanggal_kirim,
       },
     });
-
   } catch (error: any) {
-    console.error("[PUBLIC TRACKING ERROR]", error);
+    console.error("[TRACKING ERROR]", error);
+
     return NextResponse.json(
-      { result: null, message: "Terjadi kesalahan server", details: error.message },
+      {
+        result: null,
+        message: "Terjadi kesalahan server",
+        details: error?.message,
+      },
       { status: 500 }
     );
   }

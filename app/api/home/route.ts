@@ -19,14 +19,24 @@ export async function GET(req: NextRequest) {
         resi,
         nama_pengirim,
         nama_penerima,
+        no_hp_pengirim,
+        no_hp_penerima,
         alamat_pengirim,
         alamat_penerima,
+        kota_penerima,
+        kecamatan_penerima,
+        berat,
+        ongkir,
         created_at,
-        pelanggan_id,
-        status_id
+        status_id,
+        layanan_id,
+        is_draft
       FROM pengiriman
-      WHERE pelanggan_id = ${userId}
-        AND is_draft = false
+      WHERE is_draft = false
+        AND (
+          user_pengirim_id = ${userId}
+          OR user_penerima_id = ${userId}
+        )
       ORDER BY created_at DESC
     `;
 

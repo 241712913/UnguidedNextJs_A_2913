@@ -1,31 +1,6 @@
-/**
- * api/admin/pengiriman/route.ts
- * ─────────────────────────────
- * Khusus admin.
- *
- * GET    – lihat semua draft (dari pelanggan maupun dari admin sendiri)
- *
- * POST   – tiga mode lewat body:
- *   1. { editId, finalize: true, ...data }
- *        → validasi + finalisasi: is_draft=false, resi dicetak
- *        → gunakan saat pelanggan sudah datang, bayar, dan data OK
- *
- *   2. { editId, ...data }          (tanpa finalize)
- *        → simpan ulang sebagai draft admin (draft_owner='admin')
- *        → gunakan saat ada data yang perlu dikonfirmasi ulang
- *
- *   3. { ...data }                  (tanpa editId)
- *        → admin buat pengiriman baru dari awal
- *        → finalize: true  → langsung aktif + cetak resi
- *        → finalize: false → simpan sebagai draft admin dulu
- *
- * DELETE – hapus draft by id (body: { id })
- */
-
 import { NextRequest, NextResponse } from "next/server";
 import { sql } from "@vercel/postgres";
 
-// ── Helpers ────────────────────────────────────────────────────────────────
 function generateResi(): string {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
   let r = "";
@@ -52,18 +27,15 @@ function layananLabel(id: number): string {
   return { 1: "Reguler", 2: "Express", 3: "Same Day" }[id] ?? "Reguler";
 }
 
-// ── GET ────────────────────────────────────────────────────────────────────
 export async function GET(req: NextRequest) {
   const role = req.cookies.get("role")?.value;
   if (role !== "admin") {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  // ?owner=customer|admin   (kosong = tampilkan semua)
   const owner = new URL(req.url).searchParams.get("owner");
 
   try {
-    // Pakai kondisi dinamis dengan CASE agar tetap satu query
     const { rows } = await sql`
       SELECT
         p.id,
@@ -101,7 +73,6 @@ export async function GET(req: NextRequest) {
   }
 }
 
-// ── POST ───────────────────────────────────────────────────────────────────
 export async function POST(req: NextRequest) {
   const role = req.cookies.get("role")?.value;
   if (role !== "admin") {
@@ -121,15 +92,11 @@ export async function POST(req: NextRequest) {
       mudah_pecah,        layanan,            total_ongkir,
       status_id,
 
-      // Saat admin buat pengiriman baru atas nama pelanggan tertentu (opsional)
       pelanggan_id: bodyPelangganId,
     } = body;
 
     const layanan_id = LAYANAN_MAP[layanan] ?? 1;
 
-    // ────────────────────────────────────────────────────────────────────────
-    // MODE 1 & 2 — edit draft yang sudah ada (dari pelanggan atau admin)
-    // ────────────────────────────────────────────────────────────────────────
     if (editId) {
       const { rows } = await sql`
         SELECT id, pelanggan_id FROM pengiriman
@@ -141,15 +108,12 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: "Draft tidak ditemukan" }, { status: 404 });
       }
 
-      // Pertahankan pelanggan_id aslinya
       const originalPelangganId = rows[0].pelanggan_id;
 
-      // ── Finalisasi: pelanggan sudah datang, bayar, data OK ──────────────
       if (finalize) {
-        // Pakai resi yang sudah ada (kalau sudah di-generate waktu draft)
         const existing = await sql`SELECT resi FROM pengiriman WHERE id = ${editId}`;
         let resi = existing.rows[0]?.resi?.trim();
-        if (!resi) resi = await uniqueResi(); // generate kalau belum ada
+        if (!resi) resi = await uniqueResi(); 
 
         await sql`
           UPDATE pengiriman SET
@@ -183,7 +147,6 @@ export async function POST(req: NextRequest) {
         });
       }
 
-      // ── Simpan ulang sebagai draft admin (ada data yang perlu dikonfirmasi) ──
       await sql`
         UPDATE pengiriman SET
           nama_pengirim      = ${nama_pengirim},
@@ -214,13 +177,10 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // ────────────────────────────────────────────────────────────────────────
-    // MODE 3 — admin buat pengiriman baru dari awal
-    // ────────────────────────────────────────────────────────────────────────
+
     const resi        = await uniqueResi();
     const isDraft     = !finalize;
-    const ownerUserId = bodyPelangganId ?? null; // boleh null kalau walk-in
-
+    const ownerUserId = bodyPelangganId ?? null; 
     await sql`
       INSERT INTO pengiriman (
         resi,
@@ -259,7 +219,6 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// ── DELETE ─────────────────────────────────────────────────────────────────
 export async function DELETE(req: NextRequest) {
   const role = req.cookies.get("role")?.value;
   if (role !== "admin") {

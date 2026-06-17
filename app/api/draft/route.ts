@@ -1,12 +1,3 @@
-/**
- * api/draft/route.ts
- * ──────────────────
- * Khusus pelanggan.
- *
- * GET    – ambil semua draft milik pelanggan yang login
- * DELETE – hapus satu draft (?id=xxx)
- */
-
 import { NextRequest, NextResponse } from "next/server";
 import { sql } from "@vercel/postgres";
 
@@ -31,20 +22,20 @@ export async function GET(req: NextRequest) {
         p.berat,
         p.ongkir,
         p.created_at,
-        p.kota_penerima   AS kota_tujuan,
+        p.kota_penerima AS kota_tujuan,
         p.layanan_id,
         CASE p.layanan_id
           WHEN 1 THEN 'Reguler'
           WHEN 2 THEN 'Express'
           WHEN 3 THEN 'Same Day'
-          ELSE        'Reguler'
+          ELSE 'Reguler'
         END AS layanan
       FROM pengiriman p
-      WHERE p.pelanggan_id = ${userId}
+      WHERE p.user_pengirim_id = ${userId}
         AND p.is_draft = true
+        AND p.draft_owner = 'customer'
       ORDER BY p.created_at DESC
     `;
-
     return NextResponse.json({ drafts: rows });
   } catch (error: any) {
     console.error("[api/draft GET]", error.message);
@@ -69,9 +60,10 @@ export async function DELETE(req: NextRequest) {
   try {
     const result = await sql`
       DELETE FROM pengiriman
-      WHERE id           = ${id}
-        AND pelanggan_id = ${userId}
-        AND is_draft     = true
+      WHERE id                = ${id}
+        AND user_pengirim_id  = ${userId}
+        AND is_draft          = true
+        AND draft_owner       = 'customer'
       RETURNING id
     `;
 

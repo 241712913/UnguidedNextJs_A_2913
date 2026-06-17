@@ -7,44 +7,44 @@ import { useRouter } from 'next/navigation';
 const services = [
   {
     icon: '📦',
-    title: 'Manajemen Pengiriman',
-    desc: 'Kelola semua pesanan pengiriman dari satu dashboard terpusat. Buat, edit, dan monitor status pengiriman dengan mudah dan cepat.',
-    highlights: ['Multi-kurir terintegrasi', 'Input massal (bulk)', 'Label otomatis'],
+    title: 'Buat Pengiriman Mudah',
+    desc: 'Buat pesanan pengiriman baru hanya dengan beberapa langkah. Estimasi ongkir dihitung otomatis berdasarkan berat barang dan kota tujuan.',
+    highlights: ['Estimasi ongkir otomatis', 'Simpan sebagai draft', 'Repeat order'],
     color: 'emerald',
   },
   {
     icon: '🔍',
-    title: 'Pelacakan Real-Time',
-    desc: 'Pantau posisi paket secara langsung. Pelanggan kamu juga bisa lacak sendiri hanya dengan nomor resi — tanpa perlu login.',
-    highlights: ['Update otomatis', 'Notifikasi status', 'Lacak untuk pelanggan'],
+    title: 'Pelacakan Resi',
+    desc: 'Lacak status pengiriman kapan saja hanya dengan nomor resi. Status diperbarui mengikuti progres paket dari diproses sampai selesai.',
+    highlights: ['Lacak tanpa login', 'Status real dari sistem', 'Riwayat lengkap'],
     color: 'sky',
   },
   {
-    icon: '📊',
-    title: 'Laporan & Analitik',
-    desc: 'Dapatkan insight mendalam tentang performa pengirimanmu. Dari volume harian, biaya ongkir, hingga tingkat keberhasilan.',
-    highlights: ['Grafik interaktif', 'Export PDF / Excel', 'Rekap bulanan'],
+    icon: '📋',
+    title: 'Riwayat & Status Pengiriman',
+    desc: 'Pantau seluruh pengiriman kamu dalam satu dashboard, lengkap dengan status menunggu, transit, diantar, hingga selesai.',
+    highlights: ['Dashboard ringkasan', 'Detail per pengiriman', 'Filter status'],
     color: 'amber',
   },
   {
-    icon: '🤝',
-    title: 'Integrasi Marketplace',
-    desc: 'Sambungkan toko online kamu di Tokopedia, Shopee, Lazada, atau platform lain langsung ke SahabatKargo tanpa repot.',
-    highlights: ['Sync otomatis', 'Multi-toko', 'Webhook tersedia'],
+    icon: '⭐',
+    title: 'Ulasan Pengiriman',
+    desc: 'Beri rating dan komentar untuk setiap pengiriman yang sudah selesai. Bantu kami menjaga kualitas layanan untuk kamu.',
+    highlights: ['Rating 1–5', 'Komentar opsional', 'Riwayat ulasan'],
     color: 'violet',
   },
   {
-    icon: '💬',
-    title: 'Notifikasi WhatsApp',
-    desc: 'Kirim update status pengiriman otomatis ke pelanggan via WhatsApp. Tingkatkan kepercayaan dan kurangi komplain.',
-    highlights: ['Template pesan kustom', 'Blast ke banyak nomor', 'Log pengiriman pesan'],
+    icon: '👤',
+    title: 'Kelola Profil & Keamanan',
+    desc: 'Perbarui data diri seperti nama, email, nomor HP, dan alamat. Ganti password kapan saja untuk menjaga keamanan akun.',
+    highlights: ['Edit data diri', 'Ganti password', 'Data tersimpan aman'],
     color: 'green',
   },
   {
-    icon: '🏪',
-    title: 'Khusus UMKM',
-    desc: 'Dirancang untuk kebutuhan bisnis kecil dan menengah Indonesia. Harga terjangkau, fitur lengkap, dukungan 24/7.',
-    highlights: ['Harga mulai gratis', 'Onboarding mudah', 'Support responsif'],
+    icon: '💬',
+    title: 'Hubungi Kami',
+    desc: 'Punya pertanyaan atau butuh bantuan soal pengiriman? Kirim pesan langsung ke tim SahabatKargo melalui formulir kontak.',
+    highlights: ['Formulir kontak cepat', 'Respon tim support', 'Akses dari dashboard'],
     color: 'rose',
   },
 ];
@@ -125,8 +125,8 @@ export default function LayananPage() {
             <span className="text-emerald-600">Ada di Sini</span>
           </h1>
           <p className="max-w-2xl mx-auto text-slate-600 text-lg leading-relaxed">
-            SahabatKargo hadir dengan fitur lengkap untuk membantu UMKM Indonesia mengelola logistik
-            dengan lebih efisien, hemat waktu, dan profesional.
+            SahabatKargo membantu kamu membuat, melacak, dan mengelola pengiriman barang
+            dalam satu platform yang mudah digunakan.
           </p>
         </section>
 

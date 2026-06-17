@@ -189,7 +189,7 @@ export default function ShipmentPage() {
             <option value="1">Menunggu</option>
             <option value="2">Dijemput</option>
             <option value="3">Dalam perjalanan</option>
-            <option value="4">Sedang diantar</option>
+            <option value="4">Diantar</option>
             <option value="5">Terkirim</option>
             <option value="6">Gagal</option>
           </select>

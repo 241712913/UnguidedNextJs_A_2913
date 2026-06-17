@@ -1,17 +1,6 @@
-/**
- * api/pengiriman/route.ts
- * ──────────────────────
- * Khusus pelanggan.
- *
- * POST – buat draft baru ATAU update draft yang sudah ada
- *   body tanpa editId  → INSERT draft baru
- *   body dengan editId → UPDATE draft milik pelanggan ini
- */
-
 import { NextRequest, NextResponse } from "next/server";
 import { sql } from "@vercel/postgres";
 
-// ── Helpers ────────────────────────────────────────────────────────────────
 function generateResi(): string {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
   let r = "";
@@ -34,7 +23,6 @@ const LAYANAN_MAP: Record<string, number> = {
   "Same Day": 3,
 };
 
-// ── POST ───────────────────────────────────────────────────────────────────
 export async function POST(req: NextRequest) {
   try {
     const userId = req.cookies.get("userId")?.value;
@@ -61,9 +49,10 @@ export async function POST(req: NextRequest) {
     if (editId) {
       const { rows } = await sql`
         SELECT id FROM pengiriman
-        WHERE  id = ${editId}
-          AND  pelanggan_id = ${userId}
-          AND  is_draft = true
+        WHERE id = ${editId}
+          AND user_pengirim_id = ${userId}
+          AND is_draft = true
+          AND draft_owner = 'customer'
         LIMIT 1
       `;
 
@@ -91,7 +80,7 @@ export async function POST(req: NextRequest) {
           kode_pos_penerima  = ${kode_pos_penerima},
           is_draft           = true,
           draft_owner        = 'customer'
-        WHERE id = ${editId} AND pelanggan_id = ${userId}
+        WHERE id = ${editId} AND user_pengirim_id = ${userId}
       `;
 
       return NextResponse.json({ success: true, message: "Draft berhasil diperbarui." });
@@ -105,7 +94,7 @@ export async function POST(req: NextRequest) {
         resi,
         nama_pengirim,      no_hp_pengirim,     alamat_pengirim,
         nama_penerima,      no_hp_penerima,     alamat_penerima,
-        berat,              ongkir,             pelanggan_id,
+        berat,              ongkir,             user_pengirim_id,
         layanan_id,         status_id,          is_draft,         draft_owner,
         kategori_barang,    deskripsi_barang,   mudah_pecah,
         kota_penerima,      kecamatan_penerima, kode_pos_penerima
