@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import TentangClient from "./tentangClient";
+import TentangClient from "./TentangClient";
 
 export const metadata: Metadata = {
   title: "Tentang SahabatKargo.id",
