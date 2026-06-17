@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useState } from 'react';
 import Image from 'next/image';
@@ -6,7 +6,22 @@ import { useRouter } from "next/navigation";
 
 export default function Page() {
   const [open, setOpen] = useState(false);
+  const [resi, setResi] = useState("");
+
   const router = useRouter();
+
+  const handleSearch = () => {
+    const keyword = resi.trim();
+
+    if (!keyword) {
+      alert("Masukkan nomor resi");
+      return;
+    }
+
+    router.push(
+      `/tracking?resi=${encodeURIComponent(keyword)}`
+    );
+  };
 
   return (
     <main className="min-h-screen overflow-x-hidden bg-gradient-to-b from-white to-emerald-50 font-[&_*]:font-poppins">
@@ -16,26 +31,43 @@ export default function Page() {
         <header className="flex items-center justify-between py-6">
 
           {/* LOGO */}
-          <div className="flex items-center mt-0 gap-3">
-              <Image
-                src="/logo.png"
-                alt="logo"
-                width={80}
-                height={28}
-                className="object-cover"
-              />
+          <div
+            className="flex items-center mt-0 gap-3 cursor-pointer"
+            onClick={() => router.push('/')}
+          >
+            <Image
+              src="/logo.png"
+              alt="logo"
+              width={80}
+              height={28}
+              className="object-cover"
+            />
+
             <p className="text-lg font-bold text-slate-900 mt-0">
               SahabatKargo<span className="text-emerald-600">.id</span>
             </p>
           </div>
 
+          {/* NAV */}
           <div className="hidden md:flex items-center gap-8 text-sm text-slate-600 ml-auto mr-6">
-            <a href="#">Layanan</a>
-            <a href="#">Tentang</a>
-            <a href="#">Kontak</a>
+            <a href="/" className="hover:text-emerald-600 transition-colors">
+              Beranda
+            </a>
+
+            <a href="/layanan" className="hover:text-emerald-600 transition-colors">
+              Layanan
+            </a>
+
+            <a href="/tentang" className="hover:text-emerald-600 transition-colors">
+              Tentang
+            </a>
+
+            <a href="/kontak" className="hover:text-emerald-600 transition-colors">
+              Kontak
+            </a>
           </div>
 
-          <button 
+          <button
             onClick={() => router.push("/login")}
             className="hidden md:block rounded-xl bg-emerald-600 px-5 py-2 text-sm font-semibold text-white shadow-md hover:bg-emerald-700"
           >
@@ -51,6 +83,7 @@ export default function Page() {
 
         </header>
 
+        {/* MOBILE MENU */}
         {open && (
           <div className="fixed inset-0 z-[9999] md:hidden flex">
 
@@ -69,10 +102,25 @@ export default function Page() {
               </button>
 
               <nav className="flex flex-col gap-5 text-slate-700 font-medium">
-                <a href="#" onClick={() => setOpen(false)}>Layanan</a>
-                <a href="#" onClick={() => setOpen(false)}>Tentang</a>
-                <a href="#" onClick={() => setOpen(false)}>Kontak</a>
-                <a href="#" onClick={() => setOpen(false)}>Login</a>
+                <a href="/" onClick={() => setOpen(false)}>
+                  Beranda
+                </a>
+                
+                <a href="/layanan" onClick={() => setOpen(false)}>
+                  Layanan
+                </a>
+
+                <a href="/tentang" onClick={() => setOpen(false)}>
+                  Tentang
+                </a>
+
+                <a href="/kontak" onClick={() => setOpen(false)}>
+                  Kontak
+                </a>
+
+                <a href="/login" onClick={() => setOpen(false)}>
+                  Login
+                </a>
               </nav>
 
             </div>
@@ -81,6 +129,7 @@ export default function Page() {
 
         <section className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-20 items-center py-1">
 
+          {/* LEFT */}
           <div className="space-y-8 text-center lg:text-left">
 
             <div className="inline-flex mx-auto lg:mx-0 items-center gap-2 rounded-full bg-emerald-100 px-4 py-2 text-sm font-semibold text-emerald-700">
@@ -103,48 +152,75 @@ export default function Page() {
 
             </div>
 
+            {/* SEARCH — langsung ke /tracking (publik) */}
             <div className="flex flex-col sm:flex-row gap-3 max-w-xl mx-auto lg:mx-0 w-full">
 
-              <input
-                type="text"
-                placeholder="Masukkan nomor resi..."
-                className="flex-1 rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm text-slate-900 shadow-sm outline-none focus:ring-2 focus:ring-emerald-500"
-              />
+              <div className="flex-1 flex items-center rounded-2xl bg-white px-5 py-3 shadow-md">
+                <input
+                  type="text"
+                  value={resi}
+                  onChange={(e) => setResi(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      handleSearch();
+                    }
+                  }}
+                  placeholder="Masukkan nomor resi..."
+                  className="w-full bg-transparent border-none outline-none ring-0 focus:ring-0 focus:outline-none text-sm text-slate-700 placeholder:text-slate-400"
+                />
+              </div>
 
-              <button className="rounded-xl bg-emerald-600 px-6 py-3 text-sm font-semibold text-white shadow-md hover:bg-emerald-700">
+              <button
+                onClick={handleSearch}
+                className="rounded-2xl bg-emerald-600 px-6 py-3 text-sm font-semibold text-white shadow-md hover:bg-emerald-700 transition"
+              >
                 Lacak
               </button>
 
             </div>
 
-            <button 
+            <button
               onClick={() => router.push("/login")}
               className="w-full sm:w-auto rounded-xl bg-emerald-600 px-7 py-3 text-sm font-semibold text-white shadow-lg hover:bg-emerald-700"
             >
               Mulai Sekarang →
             </button>
 
+            {/* STATS */}
             <div className="grid grid-cols-3 gap-6 pt-1 -mt-3 text-left">
 
               <div>
-                <p className="text-xl sm:text-2xl font-bold text-slate-900">10K+</p>
-                <p className="text-xs sm:text-sm text-slate-500">Paket</p>
+                <p className="text-xl sm:text-2xl font-bold text-slate-900">
+                  10K+
+                </p>
+                <p className="text-xs sm:text-sm text-slate-500">
+                  Paket
+                </p>
               </div>
 
               <div>
-                <p className="text-xl sm:text-2xl font-bold text-slate-900">500+</p>
-                <p className="text-xs sm:text-sm text-slate-500">UMKM</p>
+                <p className="text-xl sm:text-2xl font-bold text-slate-900">
+                  500+
+                </p>
+                <p className="text-xs sm:text-sm text-slate-500">
+                  UMKM
+                </p>
               </div>
 
               <div>
-                <p className="text-xl sm:text-2xl font-bold text-slate-900">99%</p>
-                <p className="text-xs sm:text-sm text-slate-500">Aman</p>
+                <p className="text-xl sm:text-2xl font-bold text-slate-900">
+                  99%
+                </p>
+                <p className="text-xs sm:text-sm text-slate-500">
+                  Aman
+                </p>
               </div>
 
             </div>
 
           </div>
 
+          {/* RIGHT */}
           <div className="flex justify-center lg:justify-end px-4 lg:px-10">
 
             <div className="relative w-full max-w-[420px] mx-auto lg:mx-0 rounded-3xl bg-white p-6 shadow-xl space-y-6">
@@ -158,7 +234,10 @@ export default function Page() {
               </div>
 
               <div>
-                <p className="text-sm text-slate-500">Pengiriman Hari Ini</p>
+                <p className="text-sm text-slate-500">
+                  Pengiriman Hari Ini
+                </p>
+
                 <h2 className="text-lg font-bold text-slate-900">
                   Pantau Pengiriman
                 </h2>

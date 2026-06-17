@@ -1,55 +1,58 @@
 import { NextRequest, NextResponse } from "next/server";
-import { USERS } from "@/app/lib/users";
+import { sql } from "@vercel/postgres";
+import bcrypt from "bcryptjs";
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
-    const { currentPassword, newPassword, confirmPassword } = body;
+    const userId = req.cookies.get("userId")?.value;
+    const role   = req.cookies.get("role")?.value;
 
-    if (!currentPassword || typeof currentPassword !== "string") {
-      return NextResponse.json({ message: "Password lama wajib diisi." }, { status: 400 });
+    if (!userId) {
+      return NextResponse.json({ message: "Anda harus login terlebih dahulu." }, { status: 401 });
     }
-    if (!newPassword || typeof newPassword !== "string") {
-      return NextResponse.json({ message: "Password baru wajib diisi." }, { status: 400 });
+
+    const { currentPassword, newPassword, confirmPassword } = await req.json();
+
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      return NextResponse.json({ message: "Semua field password wajib diisi." }, { status: 400 });
     }
-    if (!confirmPassword || typeof confirmPassword !== "string") {
-      return NextResponse.json({ message: "Konfirmasi password wajib diisi." }, { status: 400 });
-    }
+
     if (newPassword.length < 6) {
       return NextResponse.json({ message: "Password baru minimal 6 karakter." }, { status: 400 });
     }
+
+    if (!/[a-zA-Z]/.test(newPassword) || !/[0-9]/.test(newPassword)) {
+      return NextResponse.json({ message: "Password harus kombinasi huruf dan angka." }, { status: 400 });
+    }
+
     if (newPassword !== confirmPassword) {
       return NextResponse.json({ message: "Konfirmasi password tidak cocok." }, { status: 400 });
     }
 
-    const userCookie = req.cookies.get("user")?.value;
-    if (!userCookie) {
-      return NextResponse.json({ message: "Anda harus login terlebih dahulu." }, { status: 401 });
-    }
+    // Ambil password lama dari DB
+    const result = await sql`
+      SELECT password FROM users WHERE id = ${userId} LIMIT 1
+    `;
 
-    let userData;
-    try {
-      userData = JSON.parse(userCookie);
-    } catch {
-      return NextResponse.json({ message: "Data pengguna tidak valid." }, { status: 400 });
-    }
-
-    const user = USERS.find((u) => u.id === userData.id);
-    if (!user) {
+    if (result.rows.length === 0) {
       return NextResponse.json({ message: "Pengguna tidak ditemukan." }, { status: 404 });
     }
 
-    if (user.password !== currentPassword) {
+    const user = result.rows[0];
+    const valid = await bcrypt.compare(currentPassword, user.password);
+
+    if (!valid) {
       return NextResponse.json({ message: "Password lama salah." }, { status: 401 });
     }
 
-    user.password = newPassword;
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-    return NextResponse.json({ success: true, message: "Password berhasil diubah." }, { status: 200 });
+    await sql`
+      UPDATE users SET password = ${hashedPassword} WHERE id = ${userId}
+    `;
+
+    return NextResponse.json({ success: true, message: "Password berhasil diubah." });
   } catch {
-    return NextResponse.json(
-      { message: "Terjadi kesalahan server saat mengganti password." },
-      { status: 500 }
-    );
+    return NextResponse.json({ message: "Terjadi kesalahan server." }, { status: 500 });
   }
 }

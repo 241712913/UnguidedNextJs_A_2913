@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "@/app/ui/navbar";
 import Sidebar from "@/app/admin/ui/sidebar";
-import { Lock, CheckCircle } from "lucide-react";
+import { Lock, CheckCircle, LogOut } from "lucide-react";
 
 export default function ProfilAdminPage() {
   const router = useRouter();
@@ -13,74 +13,67 @@ export default function ProfilAdminPage() {
   const [showToast, setShowToast] = useState(false);
   const [shipments, setShipments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [adminName, setAdminName] = useState("Admin");
+  const [adminEmail, setAdminEmail] = useState("");
 
-  const [password, setPassword] = useState({
-    old: "",
-    new: "",
-    confirm: "",
-  });
+  const [password, setPassword] = useState({ old: "", new: "", confirm: "" });
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [passwordSuccess, setPasswordSuccess] = useState<string | null>(null);
   const [passwordLoading, setPasswordLoading] = useState(false);
 
+  // Ambil nama admin dari sessionStorage
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-
-        const res = await fetch("/api/pengiriman");
-        const result = await res.json();
-
-        setShipments(result || []);
-      } catch (err) {
-        console.log(err);
-        setShipments([]);
-      } finally {
-        setLoading(false);
+    try {
+      const raw = sessionStorage.getItem("user");
+      if (raw) {
+        const user = JSON.parse(raw);
+        setAdminName(user.nama ?? "Admin");
+        setAdminEmail(user.email ?? "");
       }
-    };
+    } catch {}
+  }, []);
 
-    fetchData();
+  useEffect(() => {
+    fetch("/api/pengiriman")
+      .then((res) => res.json())
+      .then((result) => setShipments(result || []))
+      .catch(() => setShipments([]))
+      .finally(() => setLoading(false));
   }, []);
 
   const totalPengiriman = shipments.length;
-
-  const totalSelesai = shipments.filter(
-    (item) => item.status_id === 5
-  ).length;
-
-  const totalDiproses = shipments.filter(
-    (item) => item.status_id !== 5
-  ).length;
+  const totalSelesai    = shipments.filter((item) => item.status_id === 5).length;
+  const totalDiproses   = shipments.filter((item) => item.status_id !== 5).length;
 
   const handleSave = async () => {
     setPasswordError(null);
     setPasswordSuccess(null);
 
     if (!password.old || !password.new || !password.confirm) {
-      setPasswordError("Lengkapi semua field password");
+      setPasswordError("Lengkapi semua field password.");
       return;
     }
-
     if (password.new.length < 6) {
       setPasswordError("Password baru minimal 6 karakter.");
       return;
     }
-
+    if (!/[a-zA-Z]/.test(password.new) || !/[0-9]/.test(password.new)) {
+      setPasswordError("Password harus kombinasi huruf dan angka.");
+      return;
+    }
     if (password.new !== password.confirm) {
-      setPasswordError("Konfirmasi password tidak cocok");
+      setPasswordError("Konfirmasi password tidak cocok.");
       return;
     }
 
     setPasswordLoading(true);
-
     try {
       const res = await fetch("/api/auth/change-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           currentPassword: password.old,
-          newPassword: password.new,
+          newPassword:     password.new,
           confirmPassword: password.confirm,
         }),
       });
@@ -96,13 +89,15 @@ export default function ProfilAdminPage() {
       setShowToast(true);
       setTimeout(() => setShowToast(false), 2500);
     } catch {
-      setPasswordError("Tidak dapat terhubung ke server. Coba lagi nanti.");
+      setPasswordError("Tidak dapat terhubung ke server.");
     } finally {
       setPasswordLoading(false);
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await fetch("/api/auth/logout", { method: "POST" });
+    sessionStorage.removeItem("user");
     router.push("/");
   };
 
@@ -114,59 +109,39 @@ export default function ProfilAdminPage() {
       <div className="p-3 space-y-3">
 
         {/* HEADER */}
-        <div className="bg-gradient-to-r from-emerald-600 to-green-500 text-white rounded-3xl p-6 shadow-md">
-          {loading ? (
-            <>
-              <div className="h-4 w-24 bg-white/30 rounded mb-3 animate-pulse"></div>
-              <div className="h-6 w-48 bg-white/20 rounded animate-pulse"></div>
-            </>
-          ) : (
-            <>
-              <p className="text-sm opacity-90">Admin Panel</p>
-              <h1 className="text-xl font-bold mt-1">Pengaturan Akun</h1>
-              <p className="text-sm opacity-80 mt-1">
-                Kelola keamanan akun admin
-              </p>
-            </>
-          )}
+        <div className="bg-gradient-to-r from-emerald-700 via-emerald-600 to-emerald-500 text-white rounded-3xl p-6 shadow-md">
+          <p className="text-sm opacity-90">Admin Panel</p>
+          <h1 className="text-xl font-bold mt-1">Pengaturan Akun</h1>
+          <p className="text-sm opacity-80 mt-1">Kelola keamanan akun admin</p>
         </div>
 
         {/* TOAST */}
         {showToast && (
-          <div className="fixed top-6 right-6 bg-emerald-500 text-white px-5 py-3 rounded-xl shadow-lg flex items-center gap-2 z-50">
+          <div className="fixed top-6 right-6 bg-gradient-to-r from-emerald-700 via-emerald-600 to-emerald-500 text-white px-5 py-3 rounded-xl shadow-lg flex items-center gap-2 z-50">
             <CheckCircle size={18} />
-            <span className="text-sm font-medium">
-              Password berhasil diperbarui
-            </span>
+            <span className="text-sm font-medium">Password berhasil diperbarui</span>
           </div>
         )}
 
         {/* CARD PROFIL */}
         <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
-
           <div className="flex flex-col items-center text-center">
-
             {loading ? (
               <>
-                <div className="w-16 h-16 bg-gray-200 rounded-2xl animate-pulse"></div>
+                <div className="w-16 h-16 bg-gray-200 rounded-2xl animate-pulse" />
                 <div className="mt-3 space-y-2">
-                  <div className="h-4 w-40 bg-gray-200 rounded animate-pulse"></div>
-                  <div className="h-3 w-32 bg-gray-100 rounded animate-pulse"></div>
+                  <div className="h-4 w-40 bg-gray-200 rounded animate-pulse" />
+                  <div className="h-3 w-32 bg-gray-100 rounded animate-pulse" />
                 </div>
               </>
             ) : (
               <>
                 <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center text-2xl font-bold">
-                  A
+                  {adminName.charAt(0).toUpperCase()}
                 </div>
-
                 <div className="mt-3">
-                  <p className="font-semibold text-lg">
-                    Admin SahabatKargo
-                  </p>
-                  <p className="text-sm text-gray-500">
-                    admin@sahabatkargo.id
-                  </p>
+                  <p className="font-semibold text-lg">{adminName}</p>
+                  <p className="text-sm text-gray-500">{adminEmail}</p>
                 </div>
               </>
             )}
@@ -174,43 +149,26 @@ export default function ProfilAdminPage() {
 
           {/* STATISTIK */}
           <div className="mt-6 grid grid-cols-3 gap-3 text-center">
-
             {loading ? (
-              <>
-                {[1,2,3].map((i) => (
-                  <div key={i} className="bg-gray-50 rounded-2xl p-4 space-y-2">
-                    <div className="h-6 w-10 bg-gray-200 rounded mx-auto animate-pulse"></div>
-                    <div className="h-3 w-16 bg-gray-100 rounded mx-auto animate-pulse"></div>
-                  </div>
-                ))}
-              </>
+              [1, 2, 3].map((i) => (
+                <div key={i} className="bg-gray-50 rounded-2xl p-4 space-y-2">
+                  <div className="h-6 w-10 bg-gray-200 rounded mx-auto animate-pulse" />
+                  <div className="h-3 w-16 bg-gray-100 rounded mx-auto animate-pulse" />
+                </div>
+              ))
             ) : (
               <>
                 <div className="bg-gray-50 rounded-2xl p-4">
-                  <p className="font-bold text-2xl text-emerald-600">
-                    {totalPengiriman}
-                  </p>
-                  <p className="text-xs text-gray-500 mt-1">
-                    Total Pengiriman
-                  </p>
+                  <p className="font-bold text-2xl text-emerald-600">{totalPengiriman}</p>
+                  <p className="text-xs text-gray-500 mt-1">Total Pengiriman</p>
                 </div>
-
                 <div className="bg-gray-50 rounded-2xl p-4">
-                  <p className="font-bold text-2xl text-yellow-500">
-                    {totalDiproses}
-                  </p>
-                  <p className="text-xs text-gray-500 mt-1">
-                    Diproses
-                  </p>
+                  <p className="font-bold text-2xl text-yellow-500">{totalDiproses}</p>
+                  <p className="text-xs text-gray-500 mt-1">Diproses</p>
                 </div>
-
                 <div className="bg-gray-50 rounded-2xl p-4">
-                  <p className="font-bold text-2xl text-green-600">
-                    {totalSelesai}
-                  </p>
-                  <p className="text-xs text-gray-500 mt-1">
-                    Selesai
-                  </p>
+                  <p className="font-bold text-2xl text-green-600">{totalSelesai}</p>
+                  <p className="text-xs text-gray-500 mt-1">Selesai</p>
                 </div>
               </>
             )}
@@ -219,7 +177,6 @@ export default function ProfilAdminPage() {
 
         {/* PASSWORD */}
         <div className="bg-white rounded-3xl p-6 shadow-sm border space-y-4">
-
           <h3 className="font-semibold flex items-center gap-2">
             <Lock size={16} className="text-emerald-600" />
             Ubah Kata Sandi
@@ -227,10 +184,9 @@ export default function ProfilAdminPage() {
 
           {loading ? (
             <div className="space-y-3">
-              <div className="h-12 bg-gray-100 rounded-xl animate-pulse"></div>
-              <div className="h-12 bg-gray-100 rounded-xl animate-pulse"></div>
-              <div className="h-12 bg-gray-100 rounded-xl animate-pulse"></div>
-              <div className="h-12 bg-gray-200 rounded-xl animate-pulse"></div>
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="h-12 bg-gray-100 rounded-xl animate-pulse" />
+              ))}
             </div>
           ) : (
             <>
@@ -240,7 +196,7 @@ export default function ProfilAdminPage() {
                 </div>
               )}
               {passwordSuccess && (
-                <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+                <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
                   {passwordSuccess}
                 </div>
               )}
@@ -249,42 +205,28 @@ export default function ProfilAdminPage() {
                 type="password"
                 placeholder="Password lama"
                 value={password.old}
-                onChange={(e) => {
-                  setPassword({ ...password, old: e.target.value });
-                  setPasswordError(null);
-                  setPasswordSuccess(null);
-                }}
-                className="w-full p-3 rounded-xl border border-gray-200"
+                onChange={(e) => { setPassword({ ...password, old: e.target.value }); setPasswordError(null); setPasswordSuccess(null); }}
+                className="w-full p-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-400 text-sm"
               />
-
               <input
                 type="password"
-                placeholder="Password baru"
+                placeholder="Password baru (min. 6 karakter, huruf + angka)"
                 value={password.new}
-                onChange={(e) => {
-                  setPassword({ ...password, new: e.target.value });
-                  setPasswordError(null);
-                  setPasswordSuccess(null);
-                }}
-                className="w-full p-3 rounded-xl border border-gray-200"
+                onChange={(e) => { setPassword({ ...password, new: e.target.value }); setPasswordError(null); setPasswordSuccess(null); }}
+                className="w-full p-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-400 text-sm"
               />
-
               <input
                 type="password"
-                placeholder="Konfirmasi password"
+                placeholder="Konfirmasi password baru"
                 value={password.confirm}
-                onChange={(e) => {
-                  setPassword({ ...password, confirm: e.target.value });
-                  setPasswordError(null);
-                  setPasswordSuccess(null);
-                }}
-                className="w-full p-3 rounded-xl border border-gray-200"
+                onChange={(e) => { setPassword({ ...password, confirm: e.target.value }); setPasswordError(null); setPasswordSuccess(null); }}
+                className="w-full p-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-400 text-sm"
               />
 
               <button
                 onClick={handleSave}
                 disabled={passwordLoading}
-                className={`w-full py-3 rounded-xl font-medium transition ${passwordLoading ? "bg-emerald-300 text-white" : "bg-emerald-600 text-white hover:bg-emerald-700"}`}
+                className="w-full py-3 rounded-xl font-medium transition bg-gradient-to-r from-emerald-700 via-emerald-600 to-emerald-500 text-white hover:opacity-90 disabled:opacity-60"
               >
                 {passwordLoading ? "Menyimpan..." : "Simpan Password"}
               </button>
@@ -293,16 +235,13 @@ export default function ProfilAdminPage() {
         </div>
 
         {/* LOGOUT */}
-        {loading ? (
-          <div className="h-12 bg-gray-200 rounded-2xl animate-pulse"></div>
-        ) : (
-          <button
-            onClick={handleLogout}
-            className="w-full bg-white border border-red-200 text-red-500 py-3 rounded-2xl"
-          >
-            Keluar dari Akun
-          </button>
-        )}
+        <button
+          onClick={handleLogout}
+          className="w-full bg-white border border-red-200 text-red-500 py-3 rounded-2xl font-semibold hover:bg-red-50 transition flex items-center justify-center gap-2"
+        >
+          <LogOut size={18} />
+          Keluar dari Akun
+        </button>
 
       </div>
     </div>

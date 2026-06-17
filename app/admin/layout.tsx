@@ -13,7 +13,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         const raw = sessionStorage.getItem("user");
         const u = raw ? JSON.parse(raw) : null;
         if (!u || u.role !== "admin") {
-          router.replace("/login");
+          router.replace("/not-found");
           return;
         }
         setIsChecking(false);

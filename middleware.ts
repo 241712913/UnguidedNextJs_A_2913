@@ -3,23 +3,21 @@ import type { NextRequest } from "next/server";
 
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
+  const role = req.cookies.get("role")?.value;
 
-  // Protect admin and pelanggan routes
+  console.log("🔒 middleware →", { pathname, role });
+
   if (pathname.startsWith("/admin")) {
-    const role = req.cookies.get("role")?.value;
     if (role !== "admin") {
-      const url = req.nextUrl.clone();
-      url.pathname = "/not-found";
-      return NextResponse.rewrite(url);
+      console.log("❌ blocked admin");
+      return NextResponse.redirect(new URL("/not-found", req.url));
     }
   }
 
   if (pathname.startsWith("/pelanggan")) {
-    const role = req.cookies.get("role")?.value;
     if (role !== "pelanggan") {
-      const url = req.nextUrl.clone();
-      url.pathname = "/not-found";
-      return NextResponse.rewrite(url);
+      console.log("❌ blocked pelanggan");
+      return NextResponse.redirect(new URL("/not-found", req.url));
     }
   }
 

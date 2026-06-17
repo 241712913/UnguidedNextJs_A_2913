@@ -2,10 +2,7 @@
 
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
-import { Pencil, Trash2, Loader2 } from "lucide-react";
-import EditModal from "@/app/components/EditModal";
 
 type Shipment = {
   id: number;
@@ -31,148 +28,146 @@ const STATUS_MAP: Record<number, string> = {
 };
 
 const STATUS_STYLE: Record<number, { badge: string; dot: string }> = {
-  1: { badge: "bg-slate-100 text-slate-600",    dot: "bg-slate-400"   },
-  2: { badge: "bg-violet-100 text-violet-700",  dot: "bg-violet-500"  },
-  3: { badge: "bg-amber-100 text-amber-700",    dot: "bg-amber-400"   },
-  4: { badge: "bg-sky-100 text-sky-700",        dot: "bg-sky-500"     },
-  5: { badge: "bg-emerald-100 text-emerald-700",dot: "bg-emerald-500" },
-  6: { badge: "bg-rose-100 text-rose-700",      dot: "bg-rose-500"    },
+  1: { badge: "bg-slate-100 text-slate-600", dot: "bg-slate-400" },
+  2: { badge: "bg-violet-100 text-violet-700", dot: "bg-violet-500" },
+  3: { badge: "bg-amber-100 text-amber-700", dot: "bg-amber-400" },
+  4: { badge: "bg-sky-100 text-sky-700", dot: "bg-sky-500" },
+  5: { badge: "bg-emerald-100 text-emerald-700", dot: "bg-emerald-500" },
+  6: { badge: "bg-rose-100 text-rose-700", dot: "bg-rose-500" },
 };
 
 export default function ShipmentTable({
   shipments,
   loading,
-  onDeleteAction,
-  onUpdateAction,
 }: {
   shipments: Shipment[];
   loading: boolean;
-  onDeleteAction?: (id: number) => void;
-  onUpdateAction?: (updated: Shipment) => void;
 }) {
-  const [editTarget, setEditTarget] = useState<Shipment | null>(null);
-  const [deletingId, setDeletingId] = useState<number | null>(null);
-
-  const handleDelete = async (id: number) => {
-    const confirm = window.confirm("Yakin ingin menghapus data pengiriman ini?");
-    if (!confirm) return;
-
-    setDeletingId(id);
-    try {
-      const res = await fetch(`/api/pengiriman/${id}`, { method: "DELETE" });
-      if (!res.ok) {
-        const err = await res.json();
-        alert(err.error || "Gagal menghapus data");
-        return;
-      }
-      onDeleteAction?.(id);
-    } catch {
-      alert("Terjadi kesalahan saat menghapus");
-    } finally {
-      setDeletingId(null);
-    }
-  };
-
   return (
-    <>
-      <div className="bg-white rounded-2xl shadow overflow-hidden">
-        <table className="w-full">
-          <thead className="bg-gray-50 border-b">
-            <tr>
-              <th className="px-6 py-4 text-left text-sm text-gray-600">Resi</th>
-              <th className="px-6 py-4 text-left text-sm text-gray-600">Pengirim</th>
-              <th className="px-6 py-4 text-left text-sm text-gray-600">Penerima</th>
-              <th className="px-6 py-4 text-left text-sm text-gray-600">Status</th>
-              <th className="px-6 py-4 text-left text-sm text-gray-600">Tanggal</th>
-              <th className="px-6 py-4 text-center text-sm text-gray-600">Aksi</th>
-            </tr>
-          </thead>
-          <tbody>
+    <div className="bg-white rounded-2xl shadow overflow-hidden">
+      <table className="w-full">
+        <thead className="bg-gray-50 border-b">
+          <tr>
+            <th className="px-6 py-4 text-left text-sm text-gray-600">
+              Resi
+            </th>
+            <th className="px-6 py-4 text-left text-sm text-gray-600">
+              Pengirim
+            </th>
+            <th className="px-6 py-4 text-left text-sm text-gray-600">
+              Penerima
+            </th>
+            <th className="px-6 py-4 text-left text-sm text-gray-600">
+              Status
+            </th>
+            <th className="px-6 py-4 text-left text-sm text-gray-600">
+              Tanggal
+            </th>
+            <th className="px-6 py-4 text-center text-sm text-gray-600">
+              Aksi
+            </th>
+          </tr>
+        </thead>
 
-            {/* SKELETON */}
-            {loading ? (
-              [1, 2, 3, 4, 5].map((i) => (
-                <tr key={i} className="border-b animate-pulse">
-                  <td className="px-6 py-4"><div className="h-4 w-24 bg-gray-200 rounded"></div></td>
-                  <td className="px-6 py-4"><div className="h-4 w-32 bg-gray-100 rounded"></div></td>
-                  <td className="px-6 py-4"><div className="h-4 w-32 bg-gray-100 rounded"></div></td>
-                  <td className="px-6 py-4"><div className="h-6 w-28 bg-gray-100 rounded-full"></div></td>
-                  <td className="px-6 py-4"><div className="h-4 w-24 bg-gray-100 rounded"></div></td>
-                  <td className="px-6 py-4"><div className="h-4 w-16 bg-gray-100 rounded mx-auto"></div></td>
-                </tr>
-              ))
-            ) : shipments.length === 0 ? (
+        <tbody>
+          {/* SKELETON */}
+          {loading ? (
+            [1, 2, 3, 4, 5].map((i) => (
+              <tr key={i} className="border-b animate-pulse">
+                <td className="px-6 py-4">
+                  <div className="h-4 w-24 bg-gray-200 rounded"></div>
+                </td>
 
-              /* EMPTY */
-              <tr>
-                <td colSpan={6} className="text-center py-10 text-gray-400">
-                  Data tidak ditemukan
+                <td className="px-6 py-4">
+                  <div className="h-4 w-32 bg-gray-100 rounded"></div>
+                </td>
+
+                <td className="px-6 py-4">
+                  <div className="h-4 w-32 bg-gray-100 rounded"></div>
+                </td>
+
+                <td className="px-6 py-4">
+                  <div className="h-6 w-28 bg-gray-100 rounded-full"></div>
+                </td>
+
+                <td className="px-6 py-4">
+                  <div className="h-4 w-24 bg-gray-100 rounded"></div>
+                </td>
+
+                <td className="px-6 py-4">
+                  <div className="h-4 w-16 bg-gray-100 rounded mx-auto"></div>
                 </td>
               </tr>
-            ) : (
+            ))
+          ) : shipments.length === 0 ? (
+            /* EMPTY */
+            <tr>
+              <td
+                colSpan={6}
+                className="text-center py-10 text-gray-400"
+              >
+                Data tidak ditemukan
+              </td>
+            </tr>
+          ) : (
+            /* DATA */
+            shipments.map((item) => {
+              const style =
+                STATUS_STYLE[item.status_id] ?? {
+                  badge: "bg-slate-100 text-slate-600",
+                  dot: "bg-slate-400",
+                };
 
-              /* DATA */
-              shipments.map((item) => {
-                const style = STATUS_STYLE[item.status_id] ?? { badge: "bg-slate-100 text-slate-600", dot: "bg-slate-400" };
-                return (
-                  <tr key={item.id} className="border-b hover:bg-gray-50 transition">
-                    <td className="px-6 py-4 text-green-600 font-medium">{item.resi}</td>
-                    <td className="px-6 py-4">{item.nama_pengirim}</td>
-                    <td className="px-6 py-4">{item.nama_penerima}</td>
-                    <td className="px-6 py-4">
-                      <span className={`inline-flex items-center gap-1.5 text-xs px-3 py-1 rounded-full font-medium ${style.badge}`}>
-                        <span className={`w-1.5 h-1.5 rounded-full ${style.dot}`} />
-                        {STATUS_MAP[item.status_id] || "-"}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-gray-500">
-                      {new Date(item.created_at).toLocaleDateString("id-ID")}
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center justify-center gap-2">
-                        <Link
-                          href={`/admin/shipment/${item.id}`}
-                          className="text-green-600 hover:underline text-sm"
-                        >
-                          Detail
-                        </Link>
-                        <button
-                          onClick={() => setEditTarget(item)}
-                          className="flex items-center gap-1 bg-blue-50 hover:bg-blue-100 text-blue-600 px-2.5 py-1.5 rounded-lg text-xs font-medium transition"
-                        >
-                          <Pencil size={12} />
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleDelete(item.id)}
-                          disabled={deletingId === item.id}
-                          className="flex items-center gap-1 bg-red-50 hover:bg-red-100 text-red-600 px-2.5 py-1.5 rounded-lg text-xs font-medium transition disabled:opacity-50"
-                        >
-                          {deletingId === item.id
-                            ? <Loader2 size={12} className="animate-spin" />
-                            : <Trash2 size={12} />}
-                          Hapus
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })
-            )}
+              return (
+                <tr
+                  key={item.id}
+                  className="border-b hover:bg-gray-50 transition"
+                >
+                  <td className="px-6 py-4 text-emerald-600 font-medium">
+                    {item.resi}
+                  </td>
 
-          </tbody>
-        </table>
-      </div>
+                  <td className="px-6 py-4">
+                    {item.nama_pengirim}
+                  </td>
 
-      {/* Modal Edit */}
-      <EditModal
-        shipment={editTarget}
-        onClose={() => setEditTarget(null)}
-        onSuccess={(updated) => {
-          onUpdateAction?.(updated as Shipment);
-          setEditTarget(null);
-        }}
-      />
-    </>
+                  <td className="px-6 py-4">
+                    {item.nama_penerima}
+                  </td>
+
+                  <td className="px-6 py-4">
+                    <span
+                      className={`inline-flex items-center gap-1.5 text-xs px-3 py-1 rounded-full font-medium ${style.badge}`}
+                    >
+                      <span
+                        className={`w-1.5 h-1.5 rounded-full ${style.dot}`}
+                      />
+                      {STATUS_MAP[item.status_id] || "-"}
+                    </span>
+                  </td>
+
+                  <td className="px-6 py-4 text-gray-500">
+                    {new Date(item.created_at).toLocaleDateString(
+                      "id-ID"
+                    )}
+                  </td>
+
+                  <td className="px-6 py-4">
+                    <div className="flex items-center justify-center">
+                      <Link
+                        href={`/admin/shipment/${item.id}`}
+                        className="text-emerald-600 hover:underline text-sm font-medium"
+                      >
+                        Detail
+                      </Link>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })
+          )}
+        </tbody>
+      </table>
+    </div>
   );
 }
