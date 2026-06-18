@@ -303,7 +303,7 @@ export default function LoginRegisterPage() {
               <div className="rounded-xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-xs text-emerald-800 space-y-1">
                 <p className="font-semibold">Akun Demo:</p>
                 <p>Admin → admin@ekspedisi.com / admin321</p>
-                <p>Pelanggan → pelanggan@ekspedisi.com / pelanggan321</p>
+                <p>Pelanggan → natalie@gmail.com / natalie321</p>
               </div>
             </div>
           )}
