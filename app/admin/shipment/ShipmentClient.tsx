@@ -119,23 +119,27 @@ export default function ShipmentPage() {
       <div className="p-3 space-y-3">
 
         {/* HEADER */}
-        <div className="bg-gradient-to-r from-emerald-700 via-emerald-600 to-emerald-500 text-white rounded-3xl p-6 flex items-center justify-between shadow-lg">
+        <div className="bg-gradient-to-r from-emerald-700 via-emerald-600 to-emerald-500 text-white rounded-3xl p-5 md:p-6 shadow-lg flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold">Daftar Pengiriman</h1>
+            <h1 className="text-xl md:text-2xl font-bold">
+              Daftar Pengiriman
+            </h1>
+
             <p className="text-emerald-100 mt-2 text-sm">
               {filteredShipments.length} data ditemukan
             </p>
           </div>
+
           <button
             onClick={() => (window.location.href = "/admin/create")}
-            className="bg-white text-emerald-700 hover:bg-emerald-50 px-6 py-3 rounded-2xl font-semibold"
+            className="w-full sm:w-auto bg-white text-emerald-700 hover:bg-emerald-50 px-6 py-3 rounded-2xl font-semibold min-h-[48px]"
           >
             + Tambah
           </button>
         </div>
 
         {/* FILTER */}
-        <div className="bg-white rounded-3xl p-4 shadow flex flex-col lg:flex-row gap-4">
+        <div className="bg-white rounded-3xl p-4 shadow-sm border border-gray-100 flex flex-col lg:flex-row gap-4">
           <div className="flex-1 relative">
             <Search
               className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
@@ -149,11 +153,11 @@ export default function ShipmentPage() {
                 setSearch(e.target.value);
                 setCurrentPage(1);
               }}
-              className="w-full border border-gray-200 rounded-2xl px-5 py-3 pl-11 focus:outline-none focus:ring-2 focus:ring-emerald-400"
+              className="w-full border border-gray-200 rounded-2xl px-5 py-3 pl-11 text-base focus:outline-none focus:ring-2 focus:ring-emerald-400"
             />
           </div>
 
-          <div className="relative flex items-center">
+          <div className="relative flex items-center w-full lg:w-auto">
             <input
               type="date"
               value={tanggal}
@@ -161,16 +165,16 @@ export default function ShipmentPage() {
                 setTanggal(e.target.value);
                 setCurrentPage(1);
               }}
-              className="border border-gray-200 rounded-2xl px-5 py-3 pr-10 focus:outline-none focus:ring-2 focus:ring-emerald-400"
+              className="w-full border border-gray-200 rounded-2xl px-5 py-3 pr-10 text-base focus:outline-none focus:ring-2 focus:ring-emerald-400"
             />
+
             {tanggal && (
               <button
                 onClick={() => {
                   setTanggal("");
                   setCurrentPage(1);
                 }}
-                className="absolute right-3 text-gray-400 hover:text-gray-600 transition"
-                title="Hapus filter tanggal"
+                className="absolute right-3 text-gray-400 hover:text-gray-600"
               >
                 ✕
               </button>
@@ -183,7 +187,7 @@ export default function ShipmentPage() {
               setStatus(e.target.value);
               setCurrentPage(1);
             }}
-            className="border border-gray-200 rounded-2xl px-5 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-400"
+            className="w-full lg:w-auto border border-gray-200 rounded-2xl px-5 py-3 text-base focus:outline-none focus:ring-2 focus:ring-emerald-400"
           >
             <option value="all">Semua Status</option>
             <option value="1">Menunggu</option>

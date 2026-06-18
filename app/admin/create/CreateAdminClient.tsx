@@ -51,10 +51,10 @@ const WILAYAH: Record<string, Record<string, string>> = {
 };
 
 const KANTOR = {
-  alamat: "Jl. Babarsari No. 37A",
-  kota: "Kabupaten Sleman",
-  kecamatan: "Depok",
-  kodePos: "55281",
+  alamat:     "Jl. Babarsari No. 37A",
+  kota:       "Kabupaten Sleman",
+  kecamatan:  "Depok",
+  kodePos:    "55281",
 };
 
 const TIER_LABEL: Record<string, string> = {
@@ -66,9 +66,8 @@ const TIER_LABEL: Record<string, string> = {
   "Kabupaten Magelang":    "🟡 Tier 2 — Solo & Sekitar",
 };
 
-const STEPS = ["Penerima", "Barang & Biaya", "Konfirmasi"];
-const TIER2 = ["Kota Surakarta (Solo)", "Kabupaten Klaten", "Kabupaten Magelang"];
-
+const STEPS   = ["Penerima", "Barang & Biaya", "Konfirmasi"];
+const TIER2   = ["Kota Surakarta (Solo)", "Kabupaten Klaten", "Kabupaten Magelang"];
 const LAYANAN_MAP: Record<number, string> = { 1: "Reguler", 2: "Express", 3: "Same Day" };
 
 function generateResi() {
@@ -97,24 +96,32 @@ type Step1Errors    = { berat?: string; kategori?: string; mudahPecah?: string; 
 type PengirimErrors = { nama?: string; hp?: string };
 
 type DraftPelanggan = {
-  id: number;
-  resi: string;
-  nama_pengirim: string;
-  no_hp_pengirim: string;
-  alamat_pengirim: string;
-  nama_penerima: string;
-  no_hp_penerima: string;
-  alamat_penerima: string;
-  kota_penerima: string;
+  id:                 number;
+  resi:               string;
+  nama_pengirim:      string;
+  no_hp_pengirim:     string;
+  alamat_pengirim:    string;
+  nama_penerima:      string;
+  no_hp_penerima:     string;
+  alamat_penerima:    string;
+  kota_penerima:      string;
   kecamatan_penerima: string;
-  kode_pos_penerima: string;
-  berat: number;
-  ongkir: number;
-  layanan_id: number;
-  kategori_barang: string;
-  mudah_pecah: string;
-  created_at: string;
-  nama_pelanggan: string;
+  kode_pos_penerima:  string;
+  berat:              number;
+  ongkir:             number;
+  layanan_id:         number;
+  kategori_barang:    string;
+  mudah_pecah:        string;
+  created_at:         string;
+  nama_pelanggan:     string;
+  pelanggan_id:       number | null;
+};
+
+type Pelanggan = {
+  id:    number;
+  nama:  string;
+  email: string;
+  phone: string;
 };
 
 // ─── COMPONENTS ──────────────────────────────────────────────────────────────
@@ -166,28 +173,22 @@ function StepIndicator({ step }: { step: number }) {
   );
 }
 
-// ─── DRAFT SECTION (PELANGGAN + ADMIN) ───────────────────────────────────────
+// ─── DRAFT CARD ───────────────────────────────────────────────────────────────
 function DraftCard({
-  draft,
-  onPrefill,
-  onDelete,
-  deletingId,
-  expandedId,
-  setExpandedId,
+  draft, onPrefill, onDelete, deletingId, expandedId, setExpandedId,
 }: {
-  draft: DraftPelanggan;
-  onPrefill: (d: DraftPelanggan) => void;
-  onDelete: (id: number) => void;
-  deletingId: number | null;
-  expandedId: number | null;
-  setExpandedId: (id: number | null) => void;
+  draft:          DraftPelanggan;
+  onPrefill:      (d: DraftPelanggan) => void;
+  onDelete:       (id: number) => void;
+  deletingId:     number | null;
+  expandedId:     number | null;
+  setExpandedId:  (id: number | null) => void;
 }) {
   const expanded = expandedId === draft.id;
   const layanan  = LAYANAN_MAP[draft.layanan_id] ?? "Reguler";
 
   return (
     <div className="bg-white">
-      {/* Row utama */}
       <div
         className="flex items-center justify-between px-5 py-3 cursor-pointer hover:bg-amber-50/50 transition"
         onClick={() => setExpandedId(expanded ? null : draft.id)}
@@ -214,13 +215,10 @@ function DraftCard({
           <span className="text-sm font-bold text-emerald-700">
             Rp {Number(draft.ongkir).toLocaleString("id-ID")}
           </span>
-          {expanded
-            ? <ChevronUp size={14} className="text-gray-400" />
-            : <ChevronDown size={14} className="text-gray-400" />}
+          {expanded ? <ChevronUp size={14} className="text-gray-400" /> : <ChevronDown size={14} className="text-gray-400" />}
         </div>
       </div>
 
-      {/* Expanded detail */}
       {expanded && (
         <div className="px-5 pb-4 pt-1 bg-amber-50/40 space-y-3 border-t border-amber-100">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
@@ -271,6 +269,7 @@ function DraftCard({
   );
 }
 
+// ─── DRAFT SECTION ────────────────────────────────────────────────────────────
 function DraftPelangganSection({ onPrefill }: { onPrefill: (draft: DraftPelanggan) => void }) {
   const [draftsPelanggan, setDraftsPelanggan] = useState<DraftPelanggan[]>([]);
   const [draftsAdmin,     setDraftsAdmin]     = useState<DraftPelanggan[]>([]);
@@ -326,14 +325,13 @@ function DraftPelangganSection({ onPrefill }: { onPrefill: (draft: DraftPelangga
 
   return (
     <div className="space-y-3">
-      {/* Toast */}
       {toastMsg && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-emerald-700 text-white text-sm font-semibold px-5 py-3 rounded-2xl shadow-xl z-50">
           {toastMsg}
         </div>
       )}
 
-      {/* ── Draft dari Pelanggan ── */}
+      {/* Draft dari Pelanggan */}
       <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
         <button
           onClick={() => setCollapsedCust(v => !v)}
@@ -370,16 +368,14 @@ function DraftPelangganSection({ onPrefill }: { onPrefill: (draft: DraftPelangga
               </div>
             ) : (
               <div className="divide-y divide-gray-50">
-                {draftsPelanggan.map(draft => (
-                  <DraftCard key={draft.id} draft={draft} {...sharedCardProps} />
-                ))}
+                {draftsPelanggan.map(draft => <DraftCard key={draft.id} draft={draft} {...sharedCardProps} />)}
               </div>
             )}
           </div>
         )}
       </div>
 
-      {/* ── Draft dari Admin ── */}
+      {/* Draft Admin */}
       <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
         <button
           onClick={() => setCollapsedAdmin(v => !v)}
@@ -416,9 +412,7 @@ function DraftPelangganSection({ onPrefill }: { onPrefill: (draft: DraftPelangga
               </div>
             ) : (
               <div className="divide-y divide-gray-50">
-                {draftsAdmin.map(draft => (
-                  <DraftCard key={draft.id} draft={draft} {...sharedCardProps} />
-                ))}
+                {draftsAdmin.map(draft => <DraftCard key={draft.id} draft={draft} {...sharedCardProps} />)}
               </div>
             )}
           </div>
@@ -428,7 +422,7 @@ function DraftPelangganSection({ onPrefill }: { onPrefill: (draft: DraftPelangga
   );
 }
 
-// ─── INNER ────────────────────────────────────────────────────────────────────
+// ─── MAIN ─────────────────────────────────────────────────────────────────────
 function CreateAdminInner() {
   const [open,          setOpen]          = useState(false);
   const [pageLoading,   setPageLoading]   = useState(true);
@@ -438,15 +432,16 @@ function CreateAdminInner() {
   const [showModal,     setShowModal]     = useState(false);
   const [savingDraft,   setSavingDraft]   = useState(false);
   const [isRepeat,      setIsRepeat]      = useState(false);
-
-  // Simpan editId draft pelanggan yang sedang diproses
   const [activeDraftId, setActiveDraftId] = useState<number | null>(null);
+
+  // ── Daftar pelanggan untuk dropdown ──
+  const [pelangganList,    setPelangganList]    = useState<Pelanggan[]>([]);
+  const [selectedPelanggan, setSelectedPelanggan] = useState<number | null>(null);
 
   const router       = useRouter();
   const searchParams = useSearchParams();
-
-  const repeatId = searchParams?.get("repeat");
-  const draftId  = searchParams?.get("draft");
+  const repeatId     = searchParams?.get("repeat");
+  const draftId      = searchParams?.get("draft");
 
   const [namaPengirim, setNamaPengirim] = useState("");
   const [hpPengirim,   setHpPengirim]   = useState("");
@@ -470,10 +465,41 @@ function CreateAdminInner() {
   const estimasi       = estimasiTiba(metode, penerima.kota);
   const isSameDayTier2 = metode === "Same Day" && TIER2.includes(penerima.kota);
 
-  // ── Prefill dari draft pelanggan (tombol "Proses") ──────────────────────
+  // ── Fetch daftar pelanggan ─────────────────────────────────────────────
+  const loadPelanggan = async () => {
+    try {
+      const res = await fetch(
+        `/api/admin/pelanggan?t=${Date.now()}`,
+        {
+          cache: "no-store",
+        }
+      );
+
+      const data = await res.json();
+
+      if (data.success) {
+        setPelangganList(data.data ?? []);
+      }
+    } catch (err) {
+      console.error("Gagal load pelanggan:", err);
+    }
+  };
+
+  useEffect(() => {
+    loadPelanggan();
+
+    // auto refresh setiap 5 detik
+    const interval = setInterval(loadPelanggan, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // ── Prefill dari draft pelanggan ───────────────────────────────────────
   const handlePrefillFromDraft = (draft: DraftPelanggan) => {
     const stripHp = (hp: string) => hp?.startsWith("62") ? hp.slice(2) : (hp ?? "");
-    setActiveDraftId(draft.id); // ← simpan id draft yang sedang diproses
+    setActiveDraftId(draft.id);
+    // ✅ Set pelanggan_id dari draft supaya terkirim ke API
+    if (draft.pelanggan_id) setSelectedPelanggan(draft.pelanggan_id);
     setNamaPengirim(draft.nama_pengirim ?? "");
     setHpPengirim(stripHp(draft.no_hp_pengirim));
     setPenerima({
@@ -492,17 +518,18 @@ function CreateAdminInner() {
     setStep(0);
   };
 
-  // ── Prefill dari ?repeat=id atau ?draft=id ───────────────────────────────
+  // ── Prefill dari ?repeat=id atau ?draft=id ─────────────────────────────
   useEffect(() => {
     const loadId = draftId || repeatId;
     if (!loadId) return;
     setRepeatLoading(true);
     setIsRepeat(true);
     fetch(`/api/pengiriman/${loadId}`)
-      .then((r) => r.json())
-      .then((data) => {
+      .then(r => r.json())
+      .then(data => {
         if (!data) return;
         const stripHp = (hp: string) => hp?.startsWith("62") ? hp.slice(2) : (hp ?? "");
+        if (data.pelanggan_id) setSelectedPelanggan(data.pelanggan_id);
         setNamaPengirim(data.nama_pengirim   ?? "");
         setHpPengirim(stripHp(data.no_hp_pengirim));
         setPenerima({
@@ -529,19 +556,19 @@ function CreateAdminInner() {
   }, []);
 
   const updatePenerima = (f: string, v: string) => {
-    setPenerima((p) => ({ ...p, [f]: v }));
-    setErrors0((e) => ({ ...e, [f]: undefined }));
+    setPenerima(p => ({ ...p, [f]: v }));
+    setErrors0(e => ({ ...e, [f]: undefined }));
   };
 
   const handleKota = (v: string) => {
-    setPenerima((p) => ({ ...p, kota: v, kecamatan: "", kodePos: "" }));
-    setErrors0((e) => ({ ...e, kota: undefined, kecamatan: undefined }));
+    setPenerima(p => ({ ...p, kota: v, kecamatan: "", kodePos: "" }));
+    setErrors0(e => ({ ...e, kota: undefined, kecamatan: undefined }));
   };
 
   const handleKecamatan = (v: string) => {
     const kp = penerima.kota && v ? WILAYAH[penerima.kota]?.[v] ?? "" : "";
-    setPenerima((p) => ({ ...p, kecamatan: v, kodePos: kp }));
-    setErrors0((e) => ({ ...e, kecamatan: undefined }));
+    setPenerima(p => ({ ...p, kecamatan: v, kodePos: kp }));
+    setErrors0(e => ({ ...e, kecamatan: undefined }));
   };
 
   const validatePengirim = (): boolean => {
@@ -579,20 +606,20 @@ function CreateAdminInner() {
   const handleNext = () => {
     if (step === 0 && !validateStep0()) return;
     if (step === 1 && !validateStep1()) return;
-    setStep((s) => Math.min(s + 1, 2));
+    setStep(s => Math.min(s + 1, 2));
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleBack = () => {
-    setStep((s) => Math.max(s - 1, 0));
+    setStep(s => Math.max(s - 1, 0));
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  // ✅ GANTI 3: buildPayload sekarang kirim ke /api/admin/pengiriman
-  // dengan editId (kalau proses draft pelanggan) dan finalize flag
+  // ✅ buildPayload selalu sertakan pelanggan_id
   const buildPayload = (isDraft: boolean) => ({
     ...(activeDraftId ? { editId: activeDraftId } : {}),
     finalize:           !isDraft,
+    pelanggan_id:       selectedPelanggan ?? null,   // ← kunci utama
     nama_pengirim:      namaPengirim,
     no_hp_pengirim:     `62${hpPengirim}`,
     alamat_pengirim:    KANTOR.alamat,
@@ -671,29 +698,13 @@ function CreateAdminInner() {
             <div className="h-5 w-40 bg-gray-200 rounded" />
             {[1,2,3].map(i => <div key={i} className="h-16 bg-gray-100 rounded-xl" />)}
           </div>
-          <div className="bg-white rounded-2xl p-5">
-            <div className="flex items-center justify-between">
-              {[1,2,3].map((i) => (
-                <div key={i} className="flex items-center flex-1 last:flex-none">
-                  <div className="flex flex-col items-center gap-2">
-                    <div className="w-9 h-9 rounded-full bg-gray-200" />
-                    <div className="h-2 w-12 bg-gray-100 rounded hidden sm:block" />
-                  </div>
-                  {i < 3 && <div className="flex-1 h-0.5 mx-2 mb-4 bg-gray-200 rounded" />}
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="bg-white rounded-2xl p-5 space-y-3">
-            <div className="h-5 w-36 bg-gray-200 rounded" />
-            <div className="grid grid-cols-2 gap-4">
-              {[1,2,3,4].map(i => <div key={i} className="h-12 bg-gray-100 rounded-xl" />)}
-            </div>
-          </div>
         </div>
       </div>
     );
   }
+
+  // Nama pelanggan terpilih (untuk konfirmasi)
+  const namaSelectedPelanggan = pelangganList.find(p => p.id === selectedPelanggan)?.nama ?? "—";
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -714,10 +725,10 @@ function CreateAdminInner() {
           </div>
         </div>
 
-        {/* ── DRAFT PELANGGAN SECTION ── */}
+        {/* DRAFT SECTION */}
         <DraftPelangganSection onPrefill={handlePrefillFromDraft} />
 
-        {/* BANNER ketika sedang proses draft */}
+        {/* BANNER repeat */}
         {isRepeat && (
           <div className="bg-emerald-50 border border-emerald-300 rounded-2xl px-5 py-3 flex items-center gap-3">
             <span className="text-2xl">🔁</span>
@@ -731,6 +742,35 @@ function CreateAdminInner() {
         {/* STEP INDICATOR */}
         <div className="bg-white rounded-2xl p-5 shadow-sm">
           <StepIndicator step={step} />
+        </div>
+
+        {/* ✅ DROPDOWN PILIH PELANGGAN */}
+        <div className="bg-white rounded-2xl p-5 shadow-sm space-y-2">
+          <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">
+            👤 Tautkan ke Akun Pelanggan
+          </label>
+          <select
+            value={selectedPelanggan ?? ""}
+            onChange={e => setSelectedPelanggan(e.target.value ? Number(e.target.value) : null)}
+            className="w-full border border-gray-200 rounded-xl px-3 py-3 text-sm outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
+          >
+            <option value="">— Tanpa akun pelanggan (walk-in) —</option>
+            {pelangganList.map(p => (
+              <option key={p.id} value={p.id}>
+                {p.nama} · {p.email} · {p.phone}
+              </option>
+            ))}
+          </select>
+          {selectedPelanggan && (
+            <p className="text-xs text-emerald-600 font-medium">
+              ✅ Pengiriman akan muncul di dashboard pelanggan: <strong>{namaSelectedPelanggan}</strong>
+            </p>
+          )}
+          {!selectedPelanggan && (
+            <p className="text-xs text-gray-400">
+              Jika dipilih, pengiriman & draft akan otomatis muncul di akun pelanggan tersebut.
+            </p>
+          )}
         </div>
 
         {/* PENGIRIM */}
@@ -935,6 +975,15 @@ function CreateAdminInner() {
           <div className="space-y-4">
             <div className="bg-white p-5 rounded-2xl shadow-sm space-y-4">
               <h2 className="font-bold text-gray-800">📋 Konfirmasi Data</h2>
+
+              {/* Info pelanggan terpilih */}
+              <div className={`rounded-xl p-3 text-sm border ${selectedPelanggan ? "bg-emerald-50 border-emerald-200" : "bg-gray-50 border-gray-200"}`}>
+                <p className="text-xs font-bold text-gray-500 uppercase mb-1">Akun Pelanggan</p>
+                {selectedPelanggan
+                  ? <p className="font-semibold text-emerald-700">✅ {namaSelectedPelanggan}</p>
+                  : <p className="text-gray-400 italic">Walk-in — tidak ditautkan ke akun pelanggan</p>}
+              </div>
+
               <div className="rounded-xl bg-emerald-50 border border-emerald-100 p-4 space-y-1 text-sm">
                 <p className="text-xs font-bold text-emerald-600 uppercase mb-2">Pengirim</p>
                 <p><span className="text-gray-500">Nama:</span> <strong>{namaPengirim}</strong></p>
@@ -1028,6 +1077,7 @@ function CreateAdminInner() {
                   ["Berat",     `${berat} kg`],
                   ["Layanan",   metode],
                   ["Est. Tiba", estimasi],
+                  ["Pelanggan", selectedPelanggan ? namaSelectedPelanggan : "Walk-in"],
                 ].map(([k, v]) => (
                   <div key={k} className="flex justify-between gap-2">
                     <span className="text-gray-400">{k}</span>

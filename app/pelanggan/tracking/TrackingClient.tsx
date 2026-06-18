@@ -92,174 +92,138 @@ export default function TrackingPage() {
       <Sidebar open={open} onClose={() => setOpen(false)} />
       <Navbar onMenuClick={() => setOpen(true)} />
 
-      <div className="w-full p-4 space-y-4">
+      <div className="px-3 py-4 space-y-3 md:px-6 md:space-y-4">
 
         {/* HEADER */}
-        <div className="bg-gradient-to-r from-emerald-700 to-emerald-600 text-white rounded-3xl p-6 shadow-lg shadow-emerald-100">
+        <div className="relative overflow-hidden bg-gradient-to-r from-emerald-700 to-emerald-600 text-white rounded-3xl p-5 md:p-6 shadow-lg shadow-emerald-100">
+          <div className="relative z-10">
+            <h1 className="text-xl font-bold">Lacak Pengiriman</h1>
+            <p className="text-sm text-emerald-50/80 mt-1 mb-4">
+              Masukkan nomor resi untuk melihat status paket
+            </p>
 
-          <h1 className="text-xl font-bold">
-            Lacak Pengiriman
-          </h1>
+            <div className="flex gap-2">
+              <div className="flex items-center bg-white rounded-2xl px-4 py-3 flex-1 min-w-0 shadow-sm">
+                <Search size={16} className="text-emerald-400 mr-2.5 shrink-0" />
+                <input
+                  value={resi}
+                  onChange={(e) => setResi(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+                  placeholder="Masukkan nomor resi..."
+                  className="w-full min-w-0 bg-transparent border-none outline-none ring-0 focus:outline-none focus:ring-0 text-sm text-slate-700 placeholder:text-slate-400"
+                />
+              </div>
 
-          <p className="text-sm text-emerald-50 mt-1 mb-5">
-            Masukkan nomor resi untuk melihat status paket
-          </p>
-
-          <div className="flex gap-2">
-
-            <div className="flex items-center bg-white rounded-2xl px-4 py-3 flex-1 shadow-sm border border-transparent">
-
-              <Search
-                size={18}
-                className="text-emerald-400 mr-2 shrink-0"
-              />
-
-              <input
-                value={resi}
-                onChange={(e) => setResi(e.target.value)}
-                placeholder="Masukkan nomor resi..."
-                className="w-full bg-transparent border-none outline-none ring-0 focus:outline-none focus:ring-0 text-slate-700 placeholder:text-slate-400"
-              />
+              <button
+                onClick={handleSearch}
+                className="bg-white text-emerald-600 px-5 py-3 rounded-2xl text-sm font-semibold hover:bg-emerald-50 active:scale-95 transition shrink-0"
+              >
+                Cari
+              </button>
             </div>
-
-            <button
-              onClick={handleSearch}
-              className="bg-white text-emerald-600 px-5 rounded-2xl font-semibold hover:bg-emerald-50 transition"
-            >
-              Cari
-            </button>
-
           </div>
         </div>
 
         {/* GUIDE */}
-        <div className="bg-white/90 backdrop-blur rounded-3xl border border-emerald-100 shadow-sm overflow-hidden">
-
+        <div className="bg-white rounded-3xl border border-emerald-100 shadow-sm overflow-hidden">
           <button
             onClick={() => setShowGuide(!showGuide)}
-            className="w-full flex items-center justify-between p-5 text-slate-700 font-semibold hover:bg-emerald-50/60 transition"
+            className="w-full flex items-center justify-between px-5 py-4 text-sm text-slate-700 font-semibold hover:bg-emerald-50/60 active:bg-emerald-50 transition"
           >
-            Cara menemukan nomor resi
-
+            <span>Cara menemukan nomor resi</span>
             {showGuide ? (
-              <ChevronUp className="text-emerald-600" />
+              <ChevronUp size={18} className="text-emerald-600 shrink-0" />
             ) : (
-              <ChevronDown className="text-emerald-600" />
+              <ChevronDown size={18} className="text-emerald-600 shrink-0" />
             )}
           </button>
 
           {showGuide && (
-            <div className="px-5 pb-5 text-sm text-slate-600 space-y-2">
-
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                <p>Cek email konfirmasi</p>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                <p>Lihat riwayat pengiriman</p>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                <p>Cek struk pengiriman</p>
-              </div>
-
+            <div className="px-5 pb-5 text-sm text-slate-600 space-y-2.5 border-t border-emerald-50">
+              {[
+                "Cek email konfirmasi",
+                "Lihat riwayat pengiriman",
+                "Cek struk pengiriman",
+              ].map((tip) => (
+                <div key={tip} className="flex items-center gap-2.5">
+                  <div className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
+                  <p>{tip}</p>
+                </div>
+              ))}
             </div>
           )}
         </div>
 
-        {/* LOADING */}
+        {/* SKELETON — initial load */}
         {loading ? (
-          <div className="space-y-3">
-            {[1, 2, 3].map((i) => (
-              <div
-                key={i}
-                className="bg-white rounded-3xl p-5 border border-emerald-100 shadow-sm animate-pulse"
-              >
-                <div className="h-5 w-40 bg-emerald-100 rounded-xl mb-3"></div>
-
-                <div className="h-4 w-56 bg-emerald-50 rounded-xl mb-2"></div>
-
-                <div className="h-3 w-24 bg-emerald-50 rounded-xl"></div>
-              </div>
-            ))}
-          </div>
+          <SkeletonList />
         ) : (
           <>
-            {/* SEARCH LOADING */}
+            {/* SKELETON — search loading */}
             {searchLoading ? (
-              <div className="space-y-3">
-                {[1, 2, 3].map((i) => (
-                  <div
-                    key={i}
-                    className="bg-white rounded-3xl p-5 border border-emerald-100 shadow-sm animate-pulse"
-                  >
-                    <div className="h-5 w-40 bg-emerald-100 rounded-xl mb-3"></div>
-
-                    <div className="h-4 w-56 bg-emerald-50 rounded-xl mb-2"></div>
-
-                    <div className="h-3 w-24 bg-emerald-50 rounded-xl"></div>
-                  </div>
-                ))}
-              </div>
+              <SkeletonList />
             ) : (
               searched && (
                 <div className="space-y-3">
-
                   {result.length > 0 ? (
                     result.map((item) => (
                       <Link
                         key={item.id}
                         href={`/pelanggan/history/${item.id}`}
-                        className="block bg-white rounded-3xl p-5 border border-emerald-100 shadow-sm hover:shadow-md hover:border-emerald-200 transition"
+                        className="block bg-white rounded-3xl p-5 border border-emerald-100 shadow-sm hover:shadow-md hover:border-emerald-200 active:scale-[0.99] transition-all"
                       >
-
                         <div className="flex items-start justify-between gap-3">
-
-                          <div>
-                            <p className="font-bold text-lg text-slate-800">
+                          <div className="min-w-0 flex-1">
+                            <p className="font-bold text-base text-slate-800 truncate">
                               {item.resi}
                             </p>
-
-                            <p className="text-sm text-slate-500 mt-1">
+                            <p className="text-sm text-slate-500 mt-1 break-words leading-relaxed">
                               {item.alamat_pengirim} → {item.alamat_penerima}
                             </p>
                           </div>
-
-                          <div className="bg-emerald-100 text-emerald-700 text-xs font-semibold px-3 py-1 rounded-full whitespace-nowrap">
+                          <div className="bg-emerald-100 text-emerald-800 text-xs font-semibold px-3 py-1.5 rounded-full whitespace-nowrap shrink-0">
                             {item.status}
                           </div>
-
                         </div>
-
                       </Link>
                     ))
                   ) : (
                     <div className="bg-white rounded-3xl p-10 text-center border border-emerald-100 shadow-sm">
-
-                      <div className="text-5xl mb-3">
-                        📦
-                      </div>
-
+                      <div className="text-5xl mb-3">📦</div>
                       <p className="text-slate-700 font-semibold">
                         Resi tidak ditemukan
                       </p>
-
                       <p className="text-sm text-slate-400 mt-1">
                         Pastikan nomor resi yang dimasukkan benar
                       </p>
-
                     </div>
                   )}
-
                 </div>
               )
             )}
           </>
         )}
       </div>
+    </div>
+  );
+}
+
+function SkeletonList() {
+  return (
+    <div className="space-y-3">
+      {[1, 2, 3].map((i) => (
+        <div
+          key={i}
+          className="bg-white rounded-3xl p-5 border border-emerald-100 shadow-sm animate-pulse"
+        >
+          <div className="flex justify-between gap-3 mb-3">
+            <div className="h-4 w-36 bg-emerald-100 rounded-xl" />
+            <div className="h-6 w-20 bg-emerald-100 rounded-full" />
+          </div>
+          <div className="h-3 w-52 bg-emerald-50 rounded-xl mb-2" />
+          <div className="h-3 w-24 bg-emerald-50 rounded-xl" />
+        </div>
+      ))}
     </div>
   );
 }

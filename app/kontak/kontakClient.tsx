@@ -21,7 +21,7 @@ export default function KontakPage() {
 
   const contacts = [
     { icon: '📧', label: 'Email', value: '241712913@students.uajy.ac.id', href: 'mailto:241712913@students.uajy.ac.id' },
-    { icon: '💬', label: 'WhatsApp', value: '+62 812-3456-7890', href: 'https://wa.me/6281234567890' },
+    { icon: '💬', label: 'WhatsApp', value: '+62 822-8440-7728', href: 'https://wa.me/6282284407728' },
     { icon: '📍', label: 'Kantor', value: 'Jl. Babarsari No. 37A, Yogyakarta', href: '#' },
     { icon: '🕐', label: 'Jam Operasional', value: 'Senin–Jumat, 08.00–17.00 WIB', href: null },
   ];

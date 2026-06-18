@@ -18,14 +18,10 @@ async function uniqueResi(): Promise<string> {
 }
 
 const LAYANAN_MAP: Record<string, number> = {
-  Reguler: 1,
-  Express: 2,
+  Reguler:    1,
+  Express:    2,
   "Same Day": 3,
 };
-
-function layananLabel(id: number): string {
-  return { 1: "Reguler", 2: "Express", 3: "Same Day" }[id] ?? "Reguler";
-}
 
 export async function GET(req: NextRequest) {
   const role = req.cookies.get("role")?.value;
@@ -83,7 +79,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const {
       editId,
-      finalize = false,   // true → is_draft=false dan cetak resi
+      finalize = false,
 
       nama_pengirim,      no_hp_pengirim,     alamat_pengirim,
       nama_penerima,      no_hp_penerima,     alamat_penerima,
@@ -92,11 +88,15 @@ export async function POST(req: NextRequest) {
       mudah_pecah,        layanan,            total_ongkir,
       status_id,
 
+      // ✅ pelanggan_id wajib dikirim dari form admin
       pelanggan_id: bodyPelangganId,
     } = body;
 
-    const layanan_id = LAYANAN_MAP[layanan] ?? 1;
+    const layanan_id   = LAYANAN_MAP[layanan] ?? 1;
+    // Konversi ke number atau null — jaga-jaga kalau string kosong dikirim
+    const pelanggan_id = bodyPelangganId ? Number(bodyPelangganId) : null;
 
+    // ── UPDATE draft yang sudah ada ──────────────────────────────────────
     if (editId) {
       const { rows } = await sql`
         SELECT id, pelanggan_id FROM pengiriman
@@ -108,12 +108,13 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: "Draft tidak ditemukan" }, { status: 404 });
       }
 
-      const originalPelangganId = rows[0].pelanggan_id;
+      // Pakai pelanggan_id dari body kalau ada, fallback ke yang sudah tersimpan
+      const resolvedPelangganId = pelanggan_id ?? rows[0].pelanggan_id ?? null;
 
       if (finalize) {
         const existing = await sql`SELECT resi FROM pengiriman WHERE id = ${editId}`;
         let resi = existing.rows[0]?.resi?.trim();
-        if (!resi) resi = await uniqueResi(); 
+        if (!resi) resi = await uniqueResi();
 
         await sql`
           UPDATE pengiriman SET
@@ -134,7 +135,8 @@ export async function POST(req: NextRequest) {
             kota_penerima      = ${kota_penerima},
             kecamatan_penerima = ${kecamatan_penerima},
             kode_pos_penerima  = ${kode_pos_penerima},
-            pelanggan_id       = ${originalPelangganId},
+            pelanggan_id       = ${resolvedPelangganId},
+            user_pengirim_id   = ${resolvedPelangganId},
             is_draft           = false,
             draft_owner        = 'admin'
           WHERE id = ${editId}
@@ -147,6 +149,7 @@ export async function POST(req: NextRequest) {
         });
       }
 
+      // Simpan sebagai draft (belum finalize)
       await sql`
         UPDATE pengiriman SET
           nama_pengirim      = ${nama_pengirim},
@@ -165,7 +168,7 @@ export async function POST(req: NextRequest) {
           kota_penerima      = ${kota_penerima},
           kecamatan_penerima = ${kecamatan_penerima},
           kode_pos_penerima  = ${kode_pos_penerima},
-          pelanggan_id       = ${originalPelangganId},
+          pelanggan_id       = ${resolvedPelangganId},
           is_draft           = true,
           draft_owner        = 'admin'
         WHERE id = ${editId}
@@ -173,20 +176,21 @@ export async function POST(req: NextRequest) {
 
       return NextResponse.json({
         success: true,
-        message: "Draft disimpan oleh admin. Menunggu konfirmasi ulang.",
+        message: "Draft disimpan oleh admin.",
       });
     }
 
+    // ── INSERT baru ───────────────────────────────────────────────────────
+    const resi    = await uniqueResi();
+    const isDraft = !finalize;
 
-    const resi        = await uniqueResi();
-    const isDraft     = !finalize;
-    const ownerUserId = bodyPelangganId ?? null; 
     await sql`
       INSERT INTO pengiriman (
         resi,
         nama_pengirim,      no_hp_pengirim,     alamat_pengirim,
         nama_penerima,      no_hp_penerima,     alamat_penerima,
-        berat,              ongkir,             pelanggan_id,
+        berat,              ongkir,
+        pelanggan_id,       user_pengirim_id,
         layanan_id,         status_id,          is_draft,         draft_owner,
         kategori_barang,    deskripsi_barang,   mudah_pecah,
         kota_penerima,      kecamatan_penerima, kode_pos_penerima
@@ -194,21 +198,18 @@ export async function POST(req: NextRequest) {
         ${resi},
         ${nama_pengirim},      ${no_hp_pengirim},     ${alamat_pengirim},
         ${nama_penerima},      ${no_hp_penerima},     ${alamat_penerima},
-        ${berat},              ${total_ongkir},        ${ownerUserId},
+        ${berat},              ${total_ongkir},
+        ${pelanggan_id},       ${pelanggan_id},
         ${layanan_id},         ${status_id},           ${isDraft},       'admin',
-        ${kategori_barang},    ${deskripsi_barang},   ${mudah_pecah},
-        ${kota_penerima},      ${kecamatan_penerima}, ${kode_pos_penerima}
+        ${kategori_barang},    ${deskripsi_barang},    ${mudah_pecah},
+        ${kota_penerima},      ${kecamatan_penerima},  ${kode_pos_penerima}
       )
     `;
 
-    const message = isDraft
-      ? "Draft admin berhasil disimpan."
-      : "Pengiriman berhasil dibuat. Resi siap dicetak.";
-
     return NextResponse.json({
       success: true,
-      message,
-      resi: isDraft ? undefined : resi,
+      message: isDraft ? "Draft admin berhasil disimpan." : "Pengiriman berhasil dibuat.",
+      resi:    isDraft ? undefined : resi,
     });
   } catch (error: any) {
     console.error("[api/admin/pengiriman POST]", error.message);

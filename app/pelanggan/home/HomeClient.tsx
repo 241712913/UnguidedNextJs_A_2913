@@ -36,12 +36,12 @@ interface Draft {
 }
 
 const STATUS: Record<string, { color: string; icon: JSX.Element }> = {
-  Menunggu: { color: "bg-yellow-100 text-yellow-700", icon: <Clock size={14} /> },
-  Transit: { color: "bg-blue-100 text-blue-700", icon: <Truck size={14} /> },
-  "Dalam perjalanan": { color: "bg-blue-100 text-blue-700", icon: <Truck size={14} /> },
-  Diantar: { color: "bg-purple-100 text-purple-700", icon: <Package size={14} /> },
-  Selesai: { color: "bg-emerald-100 text-emerald-700", icon: <CheckCircle size={14} /> },
-  Terkirim: { color: "bg-emerald-100 text-emerald-700", icon: <CheckCircle size={14} /> },
+  Menunggu:           { color: "bg-yellow-100 text-yellow-800",  icon: <Clock size={13} /> },
+  Transit:            { color: "bg-blue-100 text-blue-800",      icon: <Truck size={13} /> },
+  "Dalam perjalanan": { color: "bg-blue-100 text-blue-800",      icon: <Truck size={13} /> },
+  Diantar:            { color: "bg-purple-100 text-purple-800",  icon: <Package size={13} /> },
+  Selesai:            { color: "bg-emerald-100 text-emerald-800", icon: <CheckCircle size={13} /> },
+  Terkirim:           { color: "bg-emerald-100 text-emerald-800", icon: <CheckCircle size={13} /> },
 };
 
 const STATUS_MAP: Record<number, StatusType> = {
@@ -60,7 +60,6 @@ export default function HomePage() {
   const [loadingDraft, setLoadingDraft] = useState(true);
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [userName, setUserName] = useState("");
-  const [resi, setResi] = useState("");
   const router = useRouter();
 
   useEffect(() => {
@@ -114,69 +113,59 @@ export default function HomePage() {
     shipments.find((s) => s.status === "Transit" || s.status === "Dalam perjalanan") ||
     shipments[0];
 
-  const handleSearch = () => {
-    const keyword = resi.trim();
-    if (!keyword) return;
-    const found = shipments.find((s) => s.resi?.toLowerCase() === keyword.toLowerCase());
-    if (found) {
-      router.push(`/pelanggan/history/${found.id}`);
-    } else {
-      router.push(`/pelanggan/tracking?resi=${encodeURIComponent(keyword)}`);
-    }
-  };
-
   return (
     <div className="bg-gray-50 min-h-screen">
       <Sidebar open={open} onClose={() => setOpen(false)} />
       <Navbar onMenuClick={() => setOpen(true)} />
 
-      <div className="p-4 space-y-4">
+      <div className="px-3 py-4 space-y-3 md:px-6 md:space-y-4">
 
         {/* HEADER */}
-        <div className="bg-gradient-to-r from-emerald-700 via-emerald-600 to-emerald-500 text-white rounded-3xl p-6 shadow-lg">
-          <p className="text-sm opacity-90">Selamat datang 👋</p>
-          <h1 className="text-xl font-bold mt-1">{userName || "Dashboard Pengiriman"}</h1>
-          <p className="text-sm opacity-80 mt-1">
-            {shipments.length} pengiriman · {drafts.length} draft menunggu
-          </p>
+        <div className="relative overflow-hidden bg-gradient-to-r from-emerald-700 via-emerald-600 to-emerald-500 text-white rounded-3xl p-5 md:p-6 shadow-lg">
+          <div className="relative z-10">
+            <p className="text-sm opacity-90">Selamat datang 👋</p>
+            <h1 className="text-xl font-bold mt-0.5 truncate">{userName || "Dashboard Pengiriman"}</h1>
+            <p className="text-sm opacity-80 mt-0.5">
+              {shipments.length} pengiriman · {drafts.length} draft menunggu
+            </p>
+          </div>
         </div>
 
         {/* STATUS CARDS */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 md:gap-4">
           {[
-            { label: "Menunggu", value: menunggu, icon: <Clock size={18} />, color: "from-yellow-100 to-yellow-50 text-yellow-700" },
-            { label: "Transit",  value: transit,  icon: <Truck size={18} />, color: "from-blue-100 to-blue-50 text-blue-700" },
-            { label: "Diantar",  value: diantar,  icon: <Package size={18} />, color: "from-purple-100 to-purple-50 text-purple-700" },
-            { label: "Selesai",  value: selesai,  icon: <CheckCircle size={18} />, color: "from-emerald-100 to-emerald-50 text-emerald-700" },
+            { label: "Menunggu", value: menunggu, icon: <Clock size={16} />,       color: "bg-yellow-50 text-yellow-700 border border-yellow-100" },
+            { label: "Transit",  value: transit,  icon: <Truck size={16} />,       color: "bg-blue-50 text-blue-700 border border-blue-100" },
+            { label: "Diantar",  value: diantar,  icon: <Package size={16} />,     color: "bg-purple-50 text-purple-700 border border-purple-100" },
+            { label: "Selesai",  value: selesai,  icon: <CheckCircle size={16} />, color: "bg-emerald-50 text-emerald-700 border border-emerald-100" },
           ].map((item) => (
-            <div key={item.label} className={`p-4 rounded-2xl bg-gradient-to-br ${item.color} shadow-sm hover:shadow-md transition`}>
+            <div key={item.label} className={`p-3.5 md:p-4 rounded-2xl ${item.color} shadow-sm`}>
               <div className="flex justify-between items-center">
                 <div>
-                  <p className="text-sm">{item.label}</p>
-                  <p className="text-2xl font-bold">{item.value}</p>
+                  <p className="text-xs font-medium opacity-80">{item.label}</p>
+                  <p className="text-2xl font-bold mt-0.5">{item.value}</p>
                 </div>
-                <div className="bg-white/60 p-2 rounded-xl">{item.icon}</div>
+                <div className="bg-white/70 p-2 rounded-xl shrink-0">{item.icon}</div>
               </div>
             </div>
           ))}
         </div>
 
         {/* DRAFT SECTION */}
-        <div className="bg-white rounded-3xl p-5 shadow-sm border border-amber-100">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-xl bg-amber-100 flex items-center justify-center">
-                <FileText size={16} className="text-amber-600" />
+        <div className="bg-white rounded-3xl p-4 md:p-5 shadow-sm border border-amber-100">
+          <div className="flex items-center justify-between mb-3 gap-2">
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="w-8 h-8 shrink-0 rounded-xl bg-amber-100 flex items-center justify-center">
+                <FileText size={15} className="text-amber-600" />
               </div>
-              <div>
+              <div className="min-w-0">
                 <h2 className="font-bold text-slate-800 text-sm">Draft Pengiriman</h2>
-                <p className="text-xs text-slate-400">Edit & hapus sebelum diproses admin</p>
+                <p className="text-xs text-slate-400 hidden sm:block">Edit & hapus sebelum diproses admin</p>
               </div>
             </div>
-            {/* TOMBOL BUAT DRAFT */}
             <button
               onClick={() => router.push("/pelanggan/create")}
-              className="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-3 py-2 rounded-xl transition"
+              className="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white text-xs font-semibold px-3 py-2 rounded-xl transition shrink-0"
             >
               <Plus size={13} />
               Buat Draft
@@ -186,11 +175,11 @@ export default function HomePage() {
           {loadingDraft ? (
             <div className="space-y-2">
               {[1, 2].map((i) => (
-                <div key={i} className="h-20 bg-gray-100 rounded-2xl animate-pulse" />
+                <div key={i} className="h-20 bg-amber-50 rounded-2xl animate-pulse" />
               ))}
             </div>
           ) : drafts.length === 0 ? (
-            <div className="text-center py-8">
+            <div className="text-center py-7">
               <div className="text-3xl mb-2">📋</div>
               <p className="text-sm font-semibold text-slate-600">Belum ada draft</p>
               <p className="text-xs text-slate-400 mt-1">Buat pengiriman baru atau gunakan repeat order</p>
@@ -198,7 +187,7 @@ export default function HomePage() {
           ) : (
             <div className="space-y-2">
               {drafts.map((draft) => (
-                <div key={draft.id} className="bg-amber-50 border border-amber-100 rounded-2xl px-4 py-3">
+                <div key={draft.id} className="bg-amber-50 border border-amber-100 rounded-2xl px-3.5 py-3">
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex-1 min-w-0">
                       <p className="font-semibold text-sm text-slate-800 truncate">
@@ -207,7 +196,7 @@ export default function HomePage() {
                       <p className="text-xs text-slate-500 truncate mt-0.5">
                         {draft.kota_tujuan}
                       </p>
-                      <div className="flex items-center gap-3 mt-1.5">
+                      <div className="flex flex-wrap items-center gap-2 mt-1.5">
                         <span className="text-xs bg-white border border-amber-200 text-amber-700 px-2 py-0.5 rounded-full font-medium">
                           {draft.berat} kg
                         </span>
@@ -221,10 +210,10 @@ export default function HomePage() {
                         </span>
                       </div>
                     </div>
-                    <div className="flex items-center gap-1.5 flex-shrink-0">
+                    <div className="flex items-center gap-1.5 shrink-0">
                       <button
                         onClick={() => router.push(`/pelanggan/create?edit=${draft.id}`)}
-                        className="w-8 h-8 rounded-xl bg-white border border-emerald-200 flex items-center justify-center hover:bg-emerald-50 transition"
+                        className="w-8 h-8 rounded-xl bg-white border border-emerald-200 flex items-center justify-center hover:bg-emerald-50 active:scale-95 transition"
                         title="Edit draft"
                       >
                         <Pencil size={13} className="text-emerald-600" />
@@ -232,7 +221,7 @@ export default function HomePage() {
                       <button
                         onClick={() => handleDeleteDraft(draft.id)}
                         disabled={deletingId === draft.id}
-                        className="w-8 h-8 rounded-xl bg-white border border-red-200 flex items-center justify-center hover:bg-red-50 transition disabled:opacity-50"
+                        className="w-8 h-8 rounded-xl bg-white border border-red-200 flex items-center justify-center hover:bg-red-50 active:scale-95 transition disabled:opacity-50"
                         title="Hapus draft"
                       >
                         {deletingId === draft.id ? (
@@ -251,29 +240,31 @@ export default function HomePage() {
 
         {/* ACTIVE SHIPMENT */}
         {pengirimanAktif && (
-          <div className="bg-white p-5 rounded-3xl shadow-sm border border-emerald-50">
-            <div className="flex justify-between items-center mb-2">
-              <p className="text-sm text-emerald-600 font-medium">🚚 Pengiriman aktif</p>
-              <span className="text-xs text-gray-400">Estimasi 1–2 hari</span>
+          <div className="bg-white p-4 md:p-5 rounded-3xl shadow-sm border border-emerald-100">
+            <div className="flex justify-between items-center mb-1.5 gap-2">
+              <p className="text-sm text-emerald-600 font-medium shrink-0">🚚 Pengiriman aktif</p>
+              <span className="text-xs text-gray-400 shrink-0">Estimasi 1–2 hari</span>
             </div>
-            <h2 className="font-bold text-lg text-gray-800">{pengirimanAktif.resi}</h2>
-            <p className="text-sm text-gray-500 mt-1">
+            <h2 className="font-bold text-base text-gray-800 truncate">{pengirimanAktif.resi}</h2>
+            <p className="text-sm text-gray-500 mt-1 break-words leading-relaxed">
               {pengirimanAktif.alamat_pengirim} → {pengirimanAktif.alamat_penerima}
             </p>
-            <div className="mt-4 w-full bg-gray-100 h-2 rounded-full overflow-hidden">
+            <div className="mt-3.5 w-full bg-gray-100 h-2 rounded-full overflow-hidden">
               <div className="bg-gradient-to-r from-emerald-500 to-emerald-600 h-2 w-2/3 rounded-full" />
             </div>
           </div>
         )}
 
         {/* LIST */}
-        <div className="space-y-3">
+        <div className="space-y-2.5">
           {loading ? (
             [1, 2, 3].map((i) => (
               <div key={i} className="bg-white p-4 rounded-2xl animate-pulse">
-                <div className="h-5 w-40 bg-gray-200 rounded mb-3" />
-                <div className="h-4 w-24 bg-gray-100 rounded mb-4" />
-                <div className="h-4 w-52 bg-gray-100 rounded" />
+                <div className="flex justify-between gap-3 mb-3">
+                  <div className="h-4 w-36 bg-gray-200 rounded" />
+                  <div className="h-6 w-20 bg-gray-100 rounded-full" />
+                </div>
+                <div className="h-3 w-52 bg-gray-100 rounded" />
               </div>
             ))
           ) : shipments.length === 0 ? (
@@ -283,7 +274,7 @@ export default function HomePage() {
               <p className="text-sm text-slate-400 mt-1">Buat pengiriman pertamamu sekarang</p>
               <button
                 onClick={() => router.push("/pelanggan/create")}
-                className="mt-4 bg-emerald-600 text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-emerald-700 transition"
+                className="mt-4 bg-emerald-600 text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-emerald-700 active:scale-95 transition"
               >
                 Buat Sekarang
               </button>
@@ -293,21 +284,21 @@ export default function HomePage() {
               <div
                 key={item.id}
                 onClick={() => router.push(`/pelanggan/history/${item.id}`)}
-                className="bg-white p-4 rounded-2xl shadow-sm hover:shadow-md transition cursor-pointer border border-gray-100"
+                className="bg-white p-4 rounded-2xl shadow-sm hover:shadow-md active:scale-[0.99] transition-all cursor-pointer border border-gray-100"
               >
-                <div className="flex justify-between items-start">
-                  <div>
-                    <p className="font-semibold">{item.resi}</p>
-                    <p className="text-xs text-gray-400">
+                <div className="flex justify-between items-start gap-3">
+                  <div className="min-w-0 flex-1">
+                    <p className="font-semibold text-sm truncate">{item.resi}</p>
+                    <p className="text-xs text-gray-400 mt-0.5">
                       {new Date(item.created_at).toLocaleDateString("id-ID")}
                     </p>
                   </div>
-                  <span className={`flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ${STATUS[item.status]?.color}`}>
+                  <span className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap shrink-0 ${STATUS[item.status]?.color}`}>
                     {STATUS[item.status]?.icon}
                     {item.status}
                   </span>
                 </div>
-                <div className="mt-3 text-sm text-gray-500">
+                <div className="mt-2 text-sm text-gray-500 break-words leading-relaxed">
                   {item.alamat_pengirim} → {item.alamat_penerima}
                 </div>
               </div>
@@ -316,14 +307,14 @@ export default function HomePage() {
         </div>
 
         {/* HELP */}
-        <div className="bg-gradient-to-r from-emerald-50 to-green-50 border border-emerald-100 p-5 rounded-3xl flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div className="bg-emerald-50 border border-emerald-100 p-4 md:p-5 rounded-3xl flex flex-col md:flex-row md:items-center md:justify-between gap-3">
           <div>
-            <h3 className="font-semibold text-emerald-700">Butuh Bantuan?</h3>
-            <p className="text-sm text-emerald-600 mt-1">Tim kami siap membantu pengiriman kamu</p>
+            <h3 className="font-semibold text-emerald-700 text-sm">Butuh Bantuan?</h3>
+            <p className="text-sm text-emerald-600 mt-0.5">Tim kami siap membantu pengiriman kamu</p>
           </div>
           <button
             onClick={() => router.push("/pelanggan/hubungi")}
-            className="bg-emerald-500 hover:bg-emerald-600 text-white px-5 py-2.5 rounded-xl text-sm font-medium w-full md:w-auto"
+            className="bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white px-5 py-2.5 rounded-xl text-sm font-medium transition w-full md:w-auto"
           >
             Hubungi Kami
           </button>
